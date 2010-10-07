@@ -5,7 +5,7 @@ import re, random, hmac, urllib2, urllib, os, logging, string, datetime
 from google.appengine.ext import db
 import simplejson as json
 
-TROPO_TOKEN_ONLY_SAY = '4759f93fd64eb847b01b4be51ba8b9f8e2a21b9e04673d76a3de3acf95aa4254d3c0fde025532e19997765a7'
+TROPO_TOKEN_ONLY_SAY = '6651a75d44ece74d87518ce880b9fa550d1a90dcf507f59134cb69f5a5e72fabe52bcb29b32dabf75c900f92'
 SECRET_LENGTH = 4
 SECRET_CHARS = string.digits
 
@@ -28,16 +28,10 @@ class BackendResponseHandler(RequestHandler):
     if (key_entry.count() == 0):
       return Response('no such pending request with such access key')
     assert key_entry.count() == 1, 'duplicate entries! omagad!'
-    if (result == 'done'):
-      key_entry_obj = key_entry.get()
-      verified = VerifiedRequest(
-            target = key_entry_obj.target,
-            api_key = key_entry_obj.api_key
-      )
-      verified.put()
-      key_entry_obj.delete()
-      return Response('processed')
-    return Response('not known result')
+    key_entry_obj = key_entry.get()
+    key_entry_obj.result = result
+    key_entry_obj.put()
+    return Response('')
 
 class ValidatorHandler(RequestHandler):
   def get(self, **kwargs):

@@ -10,6 +10,6 @@ class ValidationRequest(db.Model):
   api_key = db.StringProperty(required=True)
   access_key = db.StringProperty(required=True)
   secret = db.IntegerProperty(required=True)
-  pending = db.BooleanProperty()
+  result = db.StringProperty()
   date_submit = db.DateProperty()
   date_expire = db.DateProperty()

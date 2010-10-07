@@ -16,10 +16,30 @@ def onAnswer(event):
   say("i repeat.")
   say_as(secret,'digits')
   hangup()
+
+def notify_back(result):
+  req_params = {
+    'result':result,
+    'access_key':access_key
+  }
+  urllib2.urlopen('http://smsandvoice.appspot.com/validator/BackendResponse?'+urllib.urlencode(req_params))
+
+def onCallFailure():
+  notify_back('call_failure')
+
+def onTimeout():
+  notify_back('timeout')
+  
+def onError():
+  notify_back('internal_error')
   
 
 call(to,
   {
+    'answerOnMedia':True,
     'onAnswer':onAnswer,
+    'onCallFailure':onCallFailure,
+    'onTimeout':onTimeout,
+    'onError':onError
   })
 
