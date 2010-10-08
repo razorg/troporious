@@ -1,0 +1,35 @@
+<html>
+<head>
+<title>Login stuff</title>
+</head>
+<body>
+<form method="get" action="/login">
+<input name="identifier" type="text" value="openid identifier" /><br />
+<input type="submit" value="Try login..." />
+</form>
+Some identifiers : <br />
+https://www.google.com/accounts/o8/ud <br /><br /><br />
+<form action="/login-facebook" method="get">
+<input type="text" name="extended_parameters" value="extended_param" /><br />
+<input type="text" name="extended_parameters" value="extended_param" /><br />
+<input type="text" name="extended_parameters" value="extended_param" /><br />
+<input type="text" name="extended_parameters" value="extended_param" /><br />
+
+<input type="submit" value="request key" />
+</form>
+<br />
+-----------------------------------------
+<br />
+<form action="/login-facebook" method="get">
+<input type="text" name="method" value="method" />
+<input type="submit" value="request data" />
+</form>
+<br />
+-------------------------------------------
+<br />
+<a href="/login-facebook">Facebook - pitfy mixin ( API )</a><br />
+<a href="/login-google">Google - pitfy mixin ( hybrid openid & oauth )</a><br />
+<a href="/login-twitter">Twitter - pitfy mixin ( oauth & twitter API )</a><br />
+<a href="/google-contacts">Grab google contacts</a><br />
+</body>
+</html>
