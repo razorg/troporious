@@ -37,7 +37,7 @@ class ValidatorHandler(webapp.RequestHandler, TemplatedRequest):
   def get(self):
     do = self.request.get('do')
     if (do == 'delete_requests'):
-      ds_requests = ValidationRequest.all().fetch(100)
+      ds_requests = db.GqlQuery("SELECT __key__ FROM ValidationRequest").fetch(200)
       db.delete(ds_requests)
       return self.redirect('/validator')
       
