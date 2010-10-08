@@ -1,1 +1,1 @@
-find | grep .pyc | xargs rm -rf
+find | grep .pyc | xargs rm -rf 

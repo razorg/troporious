@@ -4,6 +4,7 @@ from apps.validation.models import ValidationRequest, ServiceUser
 import re, random, hmac, urllib2, urllib, os, logging, string, datetime
 from google.appengine.ext import db
 import simplejson as json
+import tropo
 
 TROPO_TOKEN_ONLY_SAY = '6651a75d44ece74d87518ce880b9fa550d1a90dcf507f59134cb69f5a5e72fabe52bcb29b32dabf75c900f92'
 SECRET_LENGTH = 4
@@ -13,8 +14,50 @@ def api_key_exists(api_key):
   return db.GqlQuery('SELECT * FROM ServiceUser WHERE api_key = :1', api_key).count()
 
 class ValidatorDemoHandler(webapp.RequestHandler, TemplatedRequest):
-  def get(self, **kwargs):
-    return self.render_response('validation-demo.html')
+  def get(self):
+    step = self.request.get('step')
+    if not step:
+      step = '1'
+    context = dict()
+    if step == '2':
+      context['step'] = 3
+      context['access_key'] = self.request.get('access_key')
+    return self.render_response('validation-demo-'+step+'.html', context)
+  
+  def post(self):
+    step = self.request.get('step')
+    phone = self.request.get('phone')
+    if (not phone) and (not step):
+      return self.response.out.write('no phone given')
+    
+    if (step):
+      access_key = self.request.get('access_key')
+      secret = self.request.get('secret')
+      ds_entry = db.GqlQuery('SELECT * FROM ValidationRequest WHERE access_key = :1',access_key)
+      ds_entry = ds_entry.get()
+      if (ds_entry.secret == int(secret)):
+        return self.render_response('validation-demo-right.html')
+      else:
+        return self.render_response('validation-demo-wrong.html')
+    else:
+      target = 'tel:'+phone
+      secret = tropo.generate_secret()
+      access_key = tropo.generate_key()
+      call_context = {
+        'to':target,
+        'intro':'This is our service demo! Your secret code is :',
+        'secret':secret,
+        'access_key':access_key
+      }
+      tropo.tropo_run_script(call_context)
+      ds_req = ValidationRequest(
+            target = target,
+            api_key = tropo.DEMO_API_KEY,
+            access_key = access_key,
+            secret = int(secret)
+            )
+      ds_req.put()
+    return self.redirect('/validator/demo?step=2&access_key='+access_key)
 
 
 class BackendResponseHandler(webapp.RequestHandler):
@@ -69,7 +112,7 @@ class ValidateHandler(webapp.RequestHandler):
       intro = self.request.get('intro')
       if (not target) or (not api_key):
         return self.response.out.write('target and service key is required params.')
-      
+                                                                       
       method = re.match('(\\w+):', target)
       if (method is None):
         return self.response.out.write('target '+target+' not valid')
