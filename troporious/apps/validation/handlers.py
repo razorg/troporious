@@ -1,6 +1,6 @@
-from helpers import TemplatedRequest
+from helpers import TemplatedRequest, IPencode
 from google.appengine.ext import webapp
-from apps.validation.models import ValidationRequest, ServiceUser
+from apps.validation.models import ValidationRequest, ServiceUser, DemoClient
 import re, random, hmac, urllib2, urllib, os, logging, string, datetime
 from google.appengine.ext import db
 import simplejson as json
@@ -10,14 +10,16 @@ TROPO_TOKEN_ONLY_SAY = '6651a75d44ece74d87518ce880b9fa550d1a90dcf507f59134cb69f5
 SECRET_LENGTH = 4
 SECRET_CHARS = string.digits
 
-def api_key_exists(api_key):
-  return db.GqlQuery('SELECT * FROM ServiceUser WHERE api_key = :1', api_key).count()
 
 class ValidatorDemoHandler(webapp.RequestHandler, TemplatedRequest):
   def get(self):
     step = self.request.get('step')
     if not step:
       step = '1'
+    
+    if step == 'fail':
+      return self.render_response('validation-demo-fail.html')
+        
     context = dict()
     if step == '2':
       context['step'] = 3
@@ -33,13 +35,23 @@ class ValidatorDemoHandler(webapp.RequestHandler, TemplatedRequest):
     if (step):
       access_key = self.request.get('access_key')
       secret = self.request.get('secret')
-      ds_entry = db.GqlQuery('SELECT * FROM ValidationRequest WHERE access_key = :1',access_key)
-      ds_entry = ds_entry.get()
+      ds_entry = db.Key.from_path('ValidationRequest',access_key)
+      ds_entry = db.get(ds_entry)
       if (ds_entry.secret == int(secret)):
         return self.render_response('validation-demo-right.html')
       else:
         return self.render_response('validation-demo-wrong.html')
     else:
+      ip = self.request.remote_addr
+      ds_existing = db.Key.from_path('DemoClient',ip)
+      ds_existing = db.get(ds_existing)
+      if not ds_existing:
+        DemoClient(key_name=ip, times=1).put(rpc=db.create_rpc())
+      else:
+        if (ds_existing.times > 4):
+          return self.redirect('/validator/demo?step=fail')
+        ds_existing.times = ds_existing.times + 1
+        ds_existing.put(rpc=db.create_rpc())
       target = 'tel:'+phone
       secret = tropo.generate_secret()
       access_key = tropo.generate_key()
@@ -49,14 +61,13 @@ class ValidatorDemoHandler(webapp.RequestHandler, TemplatedRequest):
         'secret':secret,
         'access_key':access_key
       }
-      tropo.tropo_run_script(call_context)
-      ds_req = ValidationRequest(
+      tropo.tropo_run_script(call_context, async=True)
+      rpc = db.create_rpc()
+      ValidationRequest(
+            key_name = access_key,
             target = target,
             api_key = tropo.DEMO_API_KEY,
-            access_key = access_key,
-            secret = int(secret)
-            )
-      ds_req.put()
+            secret = int(secret)).put(rpc=rpc)
     return self.redirect('/validator/demo?step=2&access_key='+access_key)
 
 
@@ -80,6 +91,7 @@ class ValidatorHandler(webapp.RequestHandler, TemplatedRequest):
   def get(self):
     do = self.request.get('do')
     if (do == 'delete_requests'):
+      rpc = db.create_rpc(read_policy=db.EVENTUAL_CONSISTENCY)
       ds_requests = db.GqlQuery("SELECT __key__ FROM ValidationRequest").fetch(200)
       db.delete(ds_requests)
       return self.redirect('/validator')
@@ -88,7 +100,11 @@ class ValidatorHandler(webapp.RequestHandler, TemplatedRequest):
     service_users.count = service_users.count()
     validation_requests = ValidationRequest.all()
     validation_requests.count = validation_requests.count()
-    return self.render_response('validator.html', validation_requests=validation_requests, service_users=service_users)
+    context = {
+      'service_users':service_users,
+      'validation_requests':validation_requests
+    }
+    return self.render_response('validator.html', context)
   
   def post(self):
     method = self.request.get("method")

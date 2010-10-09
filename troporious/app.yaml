@@ -12,10 +12,6 @@ handlers:
   static_files: static/\1
   upload: static/(.*)
 
-- url: /(.*\.(gif|png|jpg|js|css|html))
-  static_files: static/\1
-  upload: static/(.*\.(gif|png|jpg|js|css|html))
-
 - url: /css
   static_dir: static/css
 
@@ -25,5 +21,9 @@ handlers:
 - url: /google73a6e106114591c7.html
   static_dir: static
 
+#- url: /stats.*
+#  script: $PYTHON_LIB/google/appengine/ext/appstats/ui.py
+
 - url: /.*
   script: main.py
+
