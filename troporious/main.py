@@ -19,6 +19,7 @@ from jinja2 import Environment, FileSystemLoader
 
 rules = [
   ('/',handlers.RootHandler),
+  ('/validator/BackendResponse',BackendResponseHandler),
   ('/validator',ValidatorHandler),
   ('/validate',ValidateHandler),
   ('/validator/demo',ValidatorDemoHandler),

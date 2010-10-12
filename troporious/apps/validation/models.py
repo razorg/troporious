@@ -1,8 +1,9 @@
 from google.appengine.ext import db
 
 class ServiceUser(db.Model):
-  name = db.TextProperty(required=True)
-  api_key = db.StringProperty(required=True)
+  ### KEY IS API_KEY ###
+  #api_key = db.StringProperty(required=True)#
+  name = db.StringProperty(required=True)
   
 
 class ValidationRequest(db.Model):

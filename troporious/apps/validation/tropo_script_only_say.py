@@ -12,6 +12,7 @@ def say_as(value,type):
 
 
 def notify_back(result):
+  logger('NOTIFYING : %s' % result)
   req_params = {
     'result':result,
     'access_key':access_key
@@ -34,8 +35,9 @@ def onTimeout():
   notify_back('timeout')
   
 def onError():
-  notify_back('internal_error')
-  
+  notify_back('call_failed')
+
+fucked_up = False
 
 try:
   call(to,
@@ -49,4 +51,11 @@ try:
 except:
   inst = sys.exc_info()
   logger("Unexpected error: "+str(inst[0]) + ' ' + str(inst[1]) + ' ' + str(inst[2]))
+  fucked_up = True
+  
+logger('fucked up = %s' % str(fucked_up))
+if fucked_up == False:
+  notify_back('called')
+#else:
+#  notify_back('call failed')
 

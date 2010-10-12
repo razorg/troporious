@@ -6,23 +6,16 @@ api_version: 1
 derived_file_type:
 - python_precompiled
 
-
 handlers:
-- url: /(robots\.txt|favicon\.ico)
+- url: /static/(.*)
   static_files: static/\1
   upload: static/(.*)
-
-- url: /css
-  static_dir: static/css
-
-- url: /js
-  static_dir: static/js
   
 - url: /google73a6e106114591c7.html
   static_dir: static
 
-#- url: /stats.*
-#  script: $PYTHON_LIB/google/appengine/ext/appstats/ui.py
+- url: /stats.*
+  script: $PYTHON_LIB/google/appengine/ext/appstats/ui.py
 
 - url: /.*
   script: main.py

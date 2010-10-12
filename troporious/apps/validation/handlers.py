@@ -1,15 +1,10 @@
-from helpers import TemplatedRequest, IPencode
-from google.appengine.ext import webapp
+from helpers import TemplatedRequest
+from google.appengine.ext import webapp, db
+from google.appengine.api import memcache
 from apps.validation.models import ValidationRequest, ServiceUser, DemoClient
-import re, random, hmac, urllib2, urllib, os, logging, string, datetime
-from google.appengine.ext import db
-import simplejson as json
+from django.utils import simplejson as json
+import re, urllib, os, logging, time
 import tropo
-
-TROPO_TOKEN_ONLY_SAY = '6651a75d44ece74d87518ce880b9fa550d1a90dcf507f59134cb69f5a5e72fabe52bcb29b32dabf75c900f92'
-SECRET_LENGTH = 4
-SECRET_CHARS = string.digits
-
 
 class ValidatorDemoHandler(webapp.RequestHandler, TemplatedRequest):
   def get(self):
@@ -35,16 +30,14 @@ class ValidatorDemoHandler(webapp.RequestHandler, TemplatedRequest):
     if (step):
       access_key = self.request.get('access_key')
       secret = self.request.get('secret')
-      ds_entry = db.Key.from_path('ValidationRequest',access_key)
-      ds_entry = db.get(ds_entry)
+      ds_entry = ValidationRequest.get_by_key_name(access_key)
       if (ds_entry.secret == int(secret)):
         return self.render_response('validation-demo-right.html')
       else:
         return self.render_response('validation-demo-wrong.html')
     else:
       ip = self.request.remote_addr
-      ds_existing = db.Key.from_path('DemoClient',ip)
-      ds_existing = db.get(ds_existing)
+      ds_existing = DemoClient.get_by_key_name(ip)
       if not ds_existing:
         DemoClient(key_name=ip, times=1).put(rpc=db.create_rpc())
       else:
@@ -61,13 +54,16 @@ class ValidatorDemoHandler(webapp.RequestHandler, TemplatedRequest):
         'secret':secret,
         'access_key':access_key
       }
-      tropo.tropo_run_script(call_context, async=True)
+      fetch_rpc = tropo.tropo_run_script(call_context, async=True)
       rpc = db.create_rpc()
-      ValidationRequest(
+      validation_entry = ValidationRequest(
             key_name = access_key,
             target = target,
             api_key = tropo.DEMO_API_KEY,
             secret = int(secret)).put(rpc=rpc)
+      rpc.wait()
+      fetch_rpc.wait()
+      
     return self.redirect('/validator/demo?step=2&access_key='+access_key)
 
 
@@ -76,33 +72,41 @@ class BackendResponseHandler(webapp.RequestHandler):
     access_key = self.request.get('access_key')
     result = self.request.get('result')
     if (not result) or (not access_key):
+      logging.critical('tropo didnt provide access_key or result %s, %s' % (access_key, result))
       return self.response.out.write('no result or access_key')
-    
-    key_entry = db.GqlQuery('SELECT * FROM ValidationRequest WHERE access_key = :1', access_key)
-    if (key_entry.count() == 0):
-      return self.response.out.write('no such pending request with such access key')
-    assert key_entry.count() == 1, 'duplicate entries! omagad!'
-    key_entry_obj = key_entry.get()
-    key_entry_obj.result = result
-    key_entry_obj.put()
+
+    key_entry = ValidationRequest.get_by_key_name(access_key)
+    if not key_entry:
+      logging.critical('tropo requested with access_key %s but it does not exist' % access_key)
+    key_entry.result = result
+    key_entry.put()
     return self.response.out.write('')
 
 class ValidatorHandler(webapp.RequestHandler, TemplatedRequest):
   def get(self):
+    import time
+    t2 = time.time()
     do = self.request.get('do')
     if (do == 'delete_requests'):
       rpc = db.create_rpc(read_policy=db.EVENTUAL_CONSISTENCY)
-      ds_requests = db.GqlQuery("SELECT __key__ FROM ValidationRequest").fetch(200)
-      db.delete(ds_requests)
+      ds_request_keys = ValidationRequest.all(only_keys=True).fetch(200)
+      db.delete(ds_request_keys)
       return self.redirect('/validator')
       
-    service_users = ServiceUser.all()
-    service_users.count = service_users.count()
-    validation_requests = ValidationRequest.all()
-    validation_requests.count = validation_requests.count()
+    service_users = ServiceUser.all().fetch(100)
+    validation_requests = ValidationRequest.all().fetch(100)
+    t = time.time()
+    for service_user in service_users:
+      service_user.api_key = service_user.key().name()
+    
+    for validation_request in validation_requests:
+      validation_request.access_key = validation_request.key().name()  
+    now = time.time()
+    logging.debug('LOG1%f' %(now - t))
+    logging.debug('LOG2%f' %(now - t2))
     context = {
       'service_users':service_users,
-      'validation_requests':validation_requests
+      'validation_requests':validation_requests,
     }
     return self.render_response('validator.html', context)
   
@@ -110,12 +114,11 @@ class ValidatorHandler(webapp.RequestHandler, TemplatedRequest):
     method = self.request.get("method")
     if (method == "new_service_user"):
       name = self.request.get('name')
-      existing = db.GqlQuery("SELECT * FROM ServiceUser WHERE name = :1", name)
-      if (existing.count() != 0):
+      existing = ServiceUser.all(keys_only=True).filter('name = ',name).get()
+      if (existing is not None):
         return self.response.out.write('already exists')
       else:
-        new_user = ServiceUser(name=name, api_key=hmac.new(str(random.random())).hexdigest())
-        new_user.put()
+        ServiceUser(name=name, key_name=tropo.generate_key()).put()
         return self.redirect('/validator')
     else:
       return self.response.out.write('no type')
@@ -128,38 +131,39 @@ class ValidateHandler(webapp.RequestHandler):
       intro = self.request.get('intro')
       if (not target) or (not api_key):
         return self.response.out.write('target and service key is required params.')
-                                                                       
+
       method = re.match('(\\w+):', target)
       if (method is None):
         return self.response.out.write('target '+target+' not valid')
       
-      if (not api_key_exists(api_key)):
+      ds_user_entry = ServiceUser.get_by_key_name(api_key)
+      if (not ds_user_entry):
         return self.response.out.write('api key ' + api_key + ' does not exist')
       
       
       method = method.group(1)
-      access_key = hmac.new(str(random.random())).hexdigest()
+      access_key = tropo.generate_key()
       if (method == 'tel' or 'sip'):
         if not secret:
-          secret = "".join(random.choice(SECRET_CHARS) for x in range(SECRET_LENGTH))
+          secret = tropo.generate_secret() 
         if not intro:
           intro = "Hello! Your secret code is :"
-        tropo_params = {
-          'action':'create',
-          'token':TROPO_TOKEN_ONLY_SAY,
+        context = {
           'to':target,
           'secret':secret,
           'intro':intro,
           'access_key':access_key
         }
-        tropo_request = urllib2.urlopen('http://api.tropo.com/1.0/sessions?'+urllib.urlencode(tropo_params))
-        req = ValidationRequest(
+        http_rpc = tropo.tropo_run_script(context, async=True)
+        ds_rpc = db.create_rpc()
+        ValidationRequest(
           target = target,
           api_key = api_key,
-          access_key = access_key,
+          key_name = access_key,
           secret = int(secret)
-          )
-        req.put()
+        ).put(rpc=ds_rpc)
         resp = json.dumps({'access_key':access_key,'secret':secret})
+        http_rpc.wait()
+        ds_rpc.wait()
         return self.response.out.write(resp)
       return self.response.out.write('method not supported.')
