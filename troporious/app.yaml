@@ -14,8 +14,8 @@ handlers:
 - url: /google73a6e106114591c7.html
   static_dir: static
 
-- url: /stats.*
-  script: $PYTHON_LIB/google/appengine/ext/appstats/ui.py
+#- url: /stats.*
+#  script: $PYTHON_LIB/google/appengine/ext/appstats/ui.py
 
 - url: /.*
   script: main.py

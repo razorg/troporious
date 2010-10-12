@@ -65,14 +65,21 @@ class ValidatorDemoHandler(webapp.RequestHandler, TemplatedRequest):
       fetch_rpc.wait()
       result = None
       i = 0
+      j = 0
+      time.sleep(0.8)
       while(True):
-        result = ValidationRequest.get_by_key_name(access_key).result
-        i = i + 1
+        result = memcache.get(access_key, 'BackendResponse')
+        j = j + 1
         if not result:
-          time.sleep(0.5)
+          result = ValidationRequest.get_by_key_name(access_key).result
+          i = i + 1
+          if not result:
+            time.sleep(0.5)
+          else:
+            break
         else:
           break
-      return self.response.out.write('got %s, took me %d datastore get()\'s' % (result, i))
+      return self.response.out.write('got %s, took me %d datastore get()\'s and %d memcache get()\'s' % (result, i, j))
     return self.redirect('/validator/demo?step=2&access_key='+access_key)
 
 
@@ -84,6 +91,7 @@ class BackendResponseHandler(webapp.RequestHandler):
       logging.critical('tropo didnt provide access_key or result %s, %s' % (access_key, result))
       return self.response.out.write('no result or access_key')
 
+    memcache.set(access_key, result, 60, namespace='BackendResponse')
     key_entry = ValidationRequest.get_by_key_name(access_key)
     if not key_entry:
       logging.critical('tropo requested with access_key %s but it does not exist' % access_key)
@@ -98,7 +106,7 @@ class ValidatorHandler(webapp.RequestHandler, TemplatedRequest):
     do = self.request.get('do')
     if (do == 'delete_requests'):
       rpc = db.create_rpc(read_policy=db.EVENTUAL_CONSISTENCY)
-      ds_request_keys = ValidationRequest.all(only_keys=True).fetch(200)
+      ds_request_keys = ValidationRequest.all(keys_only=True).fetch(200)
       db.delete(ds_request_keys)
       return self.redirect('/validator')
       
