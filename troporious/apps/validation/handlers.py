@@ -63,7 +63,16 @@ class ValidatorDemoHandler(webapp.RequestHandler, TemplatedRequest):
             secret = int(secret)).put(rpc=rpc)
       rpc.wait()
       fetch_rpc.wait()
-      
+      result = None
+      i = 0
+      while(True):
+        result = ValidationRequest.get_by_key_name(access_key).result
+        i = i + 1
+        if not result:
+          time.sleep(0.5)
+        else:
+          break
+      return self.response.out.write('got %s, took me %d datastore get()\'s' % (result, i))
     return self.redirect('/validator/demo?step=2&access_key='+access_key)
 
 
