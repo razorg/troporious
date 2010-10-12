@@ -88,11 +88,13 @@ class ValidatorHandler(webapp.RequestHandler, TemplatedRequest):
     t2 = time.time()
     do = self.request.get('do')
     if (do == 'delete_requests'):
-      rpc = db.create_rpc(read_policy=db.EVENTUAL_CONSISTENCY)
-      ds_request_keys = ValidationRequest.all(only_keys=True).fetch(200)
-      db.delete(ds_request_keys)
+      db.delete(ValidationRequest.all(keys_only=True).fetch(200))
       return self.redirect('/validator')
-      
+    
+    elif do == 'delete_quotas':
+      db.delete(DemoClient.all(keys_only=True).fetch(200))
+      return self.redirect('/validator')
+    
     service_users = ServiceUser.all().fetch(100)
     validation_requests = ValidationRequest.all().fetch(100)
     t = time.time()
