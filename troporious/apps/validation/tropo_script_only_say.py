@@ -1,4 +1,5 @@
-import urllib2, urllib,sys
+import urllib2, urllib,sys, threading, time
+
 
 def logger(string):
   log("LOGGED : "+string)
@@ -38,7 +39,15 @@ def onError():
   notify_back('call_failed')
 
 fucked_up = False
+class FuckedUpChecker(threading.Thread):
+  def run(self):
+    time.sleep(2)
+    logger('FROM THREAD : fucker = %s' % fucked_up)
+    if (fucked_up == False): 
+      notify_back('called')
 
+fut = FuckedUpChecker()
+fut.run()
 try:
   call(to,
     {
