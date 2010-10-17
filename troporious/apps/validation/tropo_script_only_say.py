@@ -1,4 +1,5 @@
-import urllib2, urllib,sys
+import urllib2, urllib,sys, threading, time
+
 
 def logger(string):
   log("LOGGED : "+string)
@@ -21,12 +22,16 @@ def notify_back(result):
 
 
 def onAnswer(event):
-  say(intro)
-  say_as(secret,'digits')
-  say("i repeat.")
-  say_as(secret,'digits')
-  hangup()
-  notify_back('done')
+    if self_recorded:
+        logger("i play recorded file...")
+        say("http://hosting.tropo.com/49422/www/audio/geia sas.wav")
+    else:
+        say(intro)
+    say_as(secret,'digits')
+    say("i repeat.")
+    say_as(secret,'digits')
+    hangup()
+    notify_back('done')
 
 def onCallFailure():
   notify_back('call_failure')
@@ -38,7 +43,15 @@ def onError():
   notify_back('call_failed')
 
 fucked_up = False
+class FuckedUpChecker(threading.Thread):
+  def run(self):
+    time.sleep(3)
+    logger('FROM THREAD : fucker = %s' % fucked_up)
+    if (fucked_up == False): 
+      notify_back('called')
 
+fut = FuckedUpChecker()
+fut.run()
 try:
   call(to,
     {
@@ -46,7 +59,9 @@ try:
     'onAnswer':onAnswer,
     'onCallFailure':onCallFailure,
     'onTimeout':onTimeout,
-    'onError':onError
+    'onError':onError,
+    'recordFormat':'audio/mp3',
+    'recordURI':'http://smsandvoice.appspot.com/validator/BackendRecord'
     })
 except:
   inst = sys.exc_info()
