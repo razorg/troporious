@@ -13,13 +13,16 @@ import handlers
 from apps.validation.handlers import ValidatorDemoHandler, \
                                       BackendResponseHandler, \
                                       ValidatorHandler, \
-                                      ValidateHandler \
-
+                                      ValidateHandler, \
+                                      BackendRecord, \
+                                      DLRecording
 from jinja2 import Environment, FileSystemLoader
 
 rules = [
   ('/',handlers.RootHandler),
   ('/validator/BackendResponse',BackendResponseHandler),
+  ('/validator/BackendRecord',BackendRecord),
+  ('/validator/dlrecording',DLRecording),
   ('/validator',ValidatorHandler),
   ('/validate',ValidateHandler),
   ('/validator/demo',ValidatorDemoHandler),

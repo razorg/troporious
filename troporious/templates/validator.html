@@ -36,7 +36,7 @@ Validate! <br />
 <a href="/validator?do=delete_requests">Delete all requests</a>
 <br />
 <br />
-{% if validation_requests.count == 0 %}
+{% if validation_requests|length == 0 %}
 No requests for validation.<br />
 {% else %}
 Requests for Validation:<br />
@@ -47,5 +47,8 @@ Requests for Validation:<br />
 <br />
 {% endfor %}
 {% endif %}
+{% for recording in recordings %}
+<a href="/validator/dlrecording?id={{recording.id}}">{{recording.id}}</a>
+{% endfor %}
 </body>
 </html>

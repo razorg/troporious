@@ -1,9 +1,9 @@
 from helpers import TemplatedRequest
-from google.appengine.ext import webapp, db
+from google.appengine.ext import webapp, db, blobstore
 from google.appengine.api import memcache
-from apps.validation.models import ValidationRequest, ServiceUser, DemoClient
+from apps.validation.models import ValidationRequest, Recording, ServiceUser, DemoClient
 from django.utils import simplejson as json
-import re, urllib, os, logging, time
+import re, urllib, os, logging, time, cgi
 import tropo
 
 class ValidatorDemoHandler(webapp.RequestHandler, TemplatedRequest):
@@ -24,6 +24,7 @@ class ValidatorDemoHandler(webapp.RequestHandler, TemplatedRequest):
   def post(self):
     step = self.request.get('step')
     phone = self.request.get('phone')
+    ext = self.request.get('ext')
     if (not phone) and (not step):
       return self.response.out.write('no phone given')
     
@@ -46,13 +47,15 @@ class ValidatorDemoHandler(webapp.RequestHandler, TemplatedRequest):
         ds_existing.times = ds_existing.times + 1
         ds_existing.put(rpc=db.create_rpc())
       target = 'tel:'+phone
+      if ext:
+        target = '%s;postd=%s;pause=10000ms' % (target, ext)
       secret = tropo.generate_secret()
       access_key = tropo.generate_key()
       call_context = {
         'to':target,
         'intro':'This is our service demo! Your secret code is :',
         'secret':secret,
-        'access_key':access_key
+        'access_key':access_key,
       }
       fetch_rpc = tropo.tropo_run_script(call_context, async=True)
       rpc = db.create_rpc()
@@ -99,6 +102,23 @@ class BackendResponseHandler(webapp.RequestHandler):
     key_entry.put()
     return self.response.out.write('')
 
+class BackendRecord(webapp.RequestHandler):
+  def get(self):
+    return self.response.out.write('<form enctype="multipart/form-data" action="./BackendRecord" method="post"><input type="file" name="filename" /><input type="submit" /></form>')
+  def post(self):
+    filename = self.request.get('filename')
+    if not filename:
+      return self.response.out.write('no file provided')
+    Recording(file_upload=db.Blob(filename)).put()
+    return self.response.out.write(filename)
+    
+class DLRecording(webapp.RequestHandler):
+  def get(self):
+    id = self.request.get('id')
+    file_upload = Recording.get_by_id(int(id))
+    self.response.headers['Content-Type'] = 'application/octet-stream'
+    return self.response.out.write(file_upload.file_upload)
+
 class ValidatorHandler(webapp.RequestHandler, TemplatedRequest):
   def get(self):
     import time
@@ -114,18 +134,24 @@ class ValidatorHandler(webapp.RequestHandler, TemplatedRequest):
       
     service_users = ServiceUser.all().fetch(100)
     validation_requests = ValidationRequest.all().fetch(100)
+    recordings = Recording.all().fetch(100)
     t = time.time()
     for service_user in service_users:
       service_user.api_key = service_user.key().name()
     
     for validation_request in validation_requests:
       validation_request.access_key = validation_request.key().name()  
+    
+    for recording in recordings:
+      recording.id = recording.key().id()
+    
     now = time.time()
     logging.debug('LOG1%f' %(now - t))
     logging.debug('LOG2%f' %(now - t2))
     context = {
       'service_users':service_users,
       'validation_requests':validation_requests,
+      'recordings':recordings
     }
     return self.render_response('validator.html', context)
   

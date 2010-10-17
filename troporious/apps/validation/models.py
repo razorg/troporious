@@ -19,4 +19,6 @@ class ValidationRequest(db.Model):
 class DemoClient(db.Model):
   ## KEY is ip as str. ###
   times = db.IntegerProperty(required=True, default=0)
-  
+
+class Recording(db.Model):
+  file_upload = db.BlobProperty()
