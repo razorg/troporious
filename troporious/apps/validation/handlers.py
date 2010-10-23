@@ -6,6 +6,8 @@ from django.utils import simplejson as json
 import re, urllib, os, logging, time
 import tropo
 
+CALLBACK_HOST='http://razorg.webhop.net'
+
 class ValidatorDemoHandler(webapp.RequestHandler, TemplatedRequest):
   def get(self):
     step = self.request.get('step')
@@ -22,8 +24,9 @@ class ValidatorDemoHandler(webapp.RequestHandler, TemplatedRequest):
     return self.render_response('validation-demo-'+step+'.html', context)
   
   def post(self):
-    step = self.request.get('step')
-    phone = self.request.get('phone')
+    step = self.request.get('step',"")
+    phone = self.request.get('phone',"")
+    self_recorded = self.request.get('self_recorded',"")
     if (not phone) and (not step):
       return self.response.out.write('no phone given')
     
@@ -52,7 +55,9 @@ class ValidatorDemoHandler(webapp.RequestHandler, TemplatedRequest):
         'to':target,
         'intro':'This is our service demo! Your secret code is :',
         'secret':secret,
-        'access_key':access_key
+        'access_key':access_key,
+        'self_recorded':self_recorded,
+        'callback_host':CALLBACK_HOST
       }
       fetch_rpc = tropo.tropo_run_script(call_context, async=True)
       rpc = db.create_rpc()

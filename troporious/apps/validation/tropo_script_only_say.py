@@ -18,15 +18,15 @@ def notify_back(result):
     'result':result,
     'access_key':access_key
   }
-  urllib2.urlopen('http://smsandvoice.appspot.com/validator/BackendResponse?'+urllib.urlencode(req_params))
+  urllib2.urlopen('%s/validator/BackendResponse?%s' % (callback_host, urllib.urlencode(req_params)))
 
 
 def onAnswer(event):
-    if self_recorded:
-        logger("i play recorded file...")
-        say("http://hosting.tropo.com/49422/www/audio/geia sas.wav")
-    else:
-        say(intro)
+    #if self_recorded == "on":
+    #    logger("i play recorded file...")
+    #    say("http://hosting.tropo.com/49422/www/audio/geia sas.wav")
+    #else:
+    say(intro)
     say_as(secret,'digits')
     say("i repeat.")
     say_as(secret,'digits')
@@ -60,8 +60,8 @@ try:
     'onCallFailure':onCallFailure,
     'onTimeout':onTimeout,
     'onError':onError,
-    'recordFormat':'audio/mp3',
-    'recordURI':'http://smsandvoice.appspot.com/validator/BackendRecord'
+    #'recordFormat':'audio/mp3',
+    #'recordURI':'http://smsandvoice.appspot.com/validator/BackendRecord'
     })
 except:
   inst = sys.exc_info()
