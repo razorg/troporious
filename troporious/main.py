@@ -15,11 +15,14 @@ from apps.validation.handlers import ValidatorDemoHandler, \
                                       ValidatorHandler, \
                                       ValidateHandler, \
                                       BackendRecord, \
-                                      DLRecording
+                                      DLRecording, \
+                                      PlaygroundHandler
+
 from jinja2 import Environment, FileSystemLoader
 
 rules = [
   ('/',handlers.RootHandler),
+  ('/playground', PlaygroundHandler),
   ('/validator/BackendResponse',BackendResponseHandler),
   ('/validator/BackendRecord',BackendRecord),
   ('/validator/dlrecording',DLRecording),

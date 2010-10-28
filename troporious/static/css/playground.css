@@ -1,0 +1,46 @@
+.page {
+    /*background-image:-moz-linear-gradient(45deg, green, yellow);
+    background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#8C8C8C), to(#B8B8B8));*/
+    font-family: 'Droid Sans';
+    width:100%;
+}
+.wrapper {
+
+}
+.col-right {
+    float:right;
+    width:50%;
+    height:400px;
+}
+.col-left {
+    float:left;
+    width:50%;
+    height:400px;
+
+}
+.text-inputs > label {
+    font-size:0.8em;
+}
+.text-inputs > textarea {
+    height:100px;
+    width:350px;
+}
+
+.centered {
+    text-align:center;
+}
+
+h1 {
+    font-size:3em;
+}
+h2 {
+    font-size:2em;
+    margin-bottom:10px;
+}
+h3 {
+    font-size:1.4em;
+}
+
+input[type=radio] {
+    margin:0px 10px 0px 3px;
+}

@@ -6,6 +6,27 @@ from django.utils import simplejson as json
 import re, urllib, os, logging, time, cgi
 import tropo
 
+class PlaygroundHandler(webapp.RequestHandler, TemplatedRequest):
+    SESSION_TOKEN = '32fcb6deac2d2d4abf7d66b893c3f2cbab4c46f134f70de1d8fbece5a4a9b5ddf85aa1e3bc2b2bd7397f1353'
+    def get(self):
+        context = dict()
+        return self.render_response('showcase.html', context)
+    
+    def post(self):
+        arg_voice = self.request.get('voice')
+        arg_text = self.request.get('text')
+        arg_number = self.request.get('number')
+        context = {
+            "voice":arg_voice,
+            "text":arg_text,
+            "number":arg_number,
+            "token":self.SESSION_TOKEN
+        }
+        tropo.tropo_run_script(context)
+        return self.redirect("/playground")
+        
+    
+
 class ValidatorDemoHandler(webapp.RequestHandler, TemplatedRequest):
   def get(self):
     step = self.request.get('step')

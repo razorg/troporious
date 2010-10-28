@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Tropo Playground</title>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.2.0/build/cssreset/reset-min.css">
+<link href='http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="/static/css/playground.css">
+</head>
+<body>
+<div class="page">
+<h1 class="centered">Tropo Playground</h1>
+<h2 class="centered">Calling</h2>
+    <div class="wrapper">
+    <form action="/playground" method="post">
+    <div class="col-left">
+        <div style="margin-left:50%;">
+            <h3>Voice Selection</h3>
+                <label> <input type="radio" name="voice" value="carmen">Castilian Spanish - Female</label><br />
+                <label> <input type="radio" name="voice" value="jorge">French - Female</label><br />
+                <label> <input type="radio" name="voice" value="florence">French - Female</label><br />
+                <label> <input type="radio" name="voice" value="bernard">French - Male</label><br />
+                <label> <input type="radio" name="voice" value="allison" checked="checked">US English - Female</label><br />
+                <label> <input type="radio" name="voice" value="dave">US English - Male</label><br />
+                <label> <input type="radio" name="voice" value="kate">British English - Female</label><br />
+                <label> <input type="radio" name="voice" value="simon">British English - Male</label><br />
+                <label> <input type="radio" name="voice" value="katrin">German - Female</label><br />
+                <label> <input type="radio" name="voice" value="stefan">German - Male</label><br />
+                <label> <input type="radio" name="voice" value="paola">Italian - Female</label><br />
+                <label> <input type="radio" name="voice" value="luca">Italian - Male</label><br />
+                <label> <input type="radio" name="voice" value="saskia">Dutch - Female</label><br />
+                <label> <input type="radio" name="voice" value="willem">Dutch - Male</label><br />
+                <label> <input type="radio" name="voice" value="soledad">Mexican Spanish - Female</label><br />
+                <label> <input type="radio" name="voice" value="carlos">Mexican Spanish - Male</label><br />
+                <label> <input type="radio" name="voice" value="zosia">Polish - Female</label><br />
+                <label> <input type="radio" name="voice" value="krzysztof">Polish - Male</label><br />
+        </div>
+    </div>
+    <div class="col-right">
+        <div style="margin-top:30%">
+            <div class="text-inputs">
+                <label for="text">Text to say or url for audio to play</label><br />
+                <textarea id="text" name="text">Hello! Oups, have to go! Goodbye!</textarea>
+                <br /><br />
+                <label for="number">phone number to call</label><br />
+                <input type="text" id="number" name="number" value="+302810322628">
+                <br />
+            </div>
+        </div>
+    </div>
+    <div class="centered" style="padding-bottom:100px;">
+    <input type="submit" value="Call" style="width:80px;">
+    </div>
+    </form>
+</div>
+</div>
+</body>
+</html>
