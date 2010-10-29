@@ -13,25 +13,36 @@ class PlaygroundHandler(webapp.RequestHandler, TemplatedRequest):
         return self.render_response('playground.html', context)
     
     def post(self):
-        arg_voice = self.request.get('voice')
-        arg_text = self.request.get('text')
-        arg_number = self.request.get('number')
-        arg_transfer = self.request.get('transfer')
-        arg_transfer_number = self.request.get('transfer_number')
-        arg_transfer_text = self.request.get('transfer_text')
+        context = dict()
+        arg_conf_id = self.request.get('conf_id', 'None')
+        arg_conf_number = self.request.get('conf_number')
+        arg_voice = self.request.get('voice','None')
+        arg_text = self.request.get('text', 'None')
+        arg_callerid = self.request.get('callerid', '+302810322628')
+        arg_number = self.request.get('number', 'None')
+        arg_transfer = self.request.get('transfer', 'None')
         
-        context = {
-            "voice":arg_voice,
-            "text":arg_text,
-            "number":arg_number,
-            "_transfer":{
-                "need":arg_transfer,
-                "number":arg_transfer_number,
-                "text":arg_transfer_text
-            },
-            "token":self.SESSION_TOKEN
-        }
-                
+        if arg_transfer == "yes":
+            arg_transfer_number = self.request.get('transfer_number', 'None')
+            arg_transfer_text = self.request.get('transfer_text', 'None')
+        else:
+            arg_transfer = 'None'
+            arg_transfer_number = 'None'
+            arg_transfer_text = 'None'
+        
+        context["voice"] = arg_voice
+        context["text"] = arg_text
+        if arg_conf_number:
+            context["number"] = arg_conf_number
+        else:
+            context["number"] = arg_number
+        context["transferr"] = arg_transfer
+        context["transferrnumber"] = arg_transfer_number
+        context["transferrtext"] = arg_transfer_text
+        context["conf_id"] = arg_conf_id
+        context["token"] = self.SESSION_TOKEN
+        context["callerid"] = arg_callerid
+        
         tropo.tropo_run_script(context)
         return self.redirect("/playground")
         

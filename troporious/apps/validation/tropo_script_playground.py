@@ -1,20 +1,25 @@
 def onTransferSuccess(event):
-    say(_transfer["text"], {"voice":voice})
+    #say(transferrtext, {"voice":voice})
     hangup()
 
 def onAnswer(event):
-    say(text, {"voice":voice})
-    if _tranfer["need"] == "yes":
-        transfer(_transfer["number"], {
-                'onSuccess':onTransferSuccess,
-                #'onCallFailure':onTransferFailure,
-                #'onTimeout':onTransferTimeout
-        })
-    else:
+    if conf_id != "None":
+        conference(conf_id, {"terminator":"#"})
         hangup()
+    else:
+        say(text, {"voice":voice})
+        if transferr == "yes":
+            transfer(transferrnumber, {
+                    'onSuccess':onTransferSuccess,
+                    #'onCallFailure':onTransferFailure,
+                    #'onTimeout':onTransferTimeout
+            })
+        else:
+            hangup()
 
 call(number, {
         "onAnswer":onAnswer,
+        "callerID":callerid,
         #"onCallFailure":onCallFailure,
         #"onError":onError,
         #"onTimeout":onTimeout,

@@ -38,7 +38,7 @@ h1 {
 }
 h2 {
     font-size:2em;
-    margin:10px 0 10px 0;
+    /*margin:10px 0 10px 0px;*/
 }
 h3 {
     font-size:1.4em;
@@ -53,4 +53,9 @@ div#voice-col {
 }
 div#text-col {
     margin-left:59px;
+}
+.border {
+    margin:auto;
+    border-bottom:2px solid black;
+    width:350px;
 }
