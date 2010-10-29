@@ -2,10 +2,11 @@
     /*background-image:-moz-linear-gradient(45deg, green, yellow);
     background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#8C8C8C), to(#B8B8B8));*/
     font-family: 'Droid Sans';
-    width:1024px;
+    min-width:1024px;
+    width:100%;
 }
 .wrapper {
-
+    margin:3%;
 }
 .col-right {
     float:right;
@@ -16,7 +17,6 @@
     float:left;
     width:50%;
     height:400px;
-
 }
 .text-inputs > label {
     font-size:0.8em;
@@ -31,11 +31,14 @@
 }
 
 h1 {
+    font-family:'Lobster';
     font-size:3em;
+    border-bottom:2px solid black;
+    border-bottom-width:15px;
 }
 h2 {
     font-size:2em;
-    margin-bottom:10px;
+    margin:10px 0 10px 0;
 }
 h3 {
     font-size:1.4em;
@@ -43,4 +46,11 @@ h3 {
 
 input[type=radio] {
     margin:0px 10px 0px 3px;
+}
+div#voice-col {
+    margin-left:50%;
+    border-right:2px solid black;
+}
+div#text-col {
+    margin-left:59px;
 }

@@ -10,18 +10,28 @@ class PlaygroundHandler(webapp.RequestHandler, TemplatedRequest):
     SESSION_TOKEN = '32fcb6deac2d2d4abf7d66b893c3f2cbab4c46f134f70de1d8fbece5a4a9b5ddf85aa1e3bc2b2bd7397f1353'
     def get(self):
         context = dict()
-        return self.render_response('showcase.html', context)
+        return self.render_response('playground.html', context)
     
     def post(self):
         arg_voice = self.request.get('voice')
         arg_text = self.request.get('text')
         arg_number = self.request.get('number')
+        arg_transfer = self.request.get('transfer')
+        arg_transfer_number = self.request.get('transfer_number')
+        arg_transfer_text = self.request.get('transfer_text')
+        
         context = {
             "voice":arg_voice,
             "text":arg_text,
             "number":arg_number,
+            "_transfer":{
+                "need":arg_transfer,
+                "number":arg_transfer_number,
+                "text":arg_transfer_text
+            },
             "token":self.SESSION_TOKEN
         }
+                
         tropo.tropo_run_script(context)
         return self.redirect("/playground")
         
