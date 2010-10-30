@@ -21,15 +21,10 @@ class PlaygroundHandler(webapp.RequestHandler, TemplatedRequest):
         arg_callerid = self.request.get('callerid', '+302810322628')
         arg_number = self.request.get('number', 'None')
         arg_transfer = self.request.get('transfer', 'None')
-        
-        if arg_transfer == "yes":
-            arg_transfer_number = self.request.get('transfer_number', 'None')
-            arg_transfer_text = self.request.get('transfer_text', 'None')
-        else:
-            arg_transfer = 'None'
-            arg_transfer_number = 'None'
-            arg_transfer_text = 'None'
-        
+        arg_transfer_number = self.request.get('transfer_number', 'None')
+        arg_transfer_text = self.request.get('transfer_text', 'None')
+        arg_transfer_callerid = self.request.get('transfer_callerid', 'None')
+    
         context["voice"] = arg_voice
         context["text"] = arg_text
         if arg_conf_number:
@@ -39,6 +34,7 @@ class PlaygroundHandler(webapp.RequestHandler, TemplatedRequest):
         context["transferr"] = arg_transfer
         context["transferrnumber"] = arg_transfer_number
         context["transferrtext"] = arg_transfer_text
+        context["transferrcallerid"] = arg_transfer_callerid    
         context["conf_id"] = arg_conf_id
         context["token"] = self.SESSION_TOKEN
         context["callerid"] = arg_callerid

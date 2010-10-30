@@ -7,5 +7,4 @@ $(document).ready(function() {
         $('#transfer_no').click(function() {
                 init_disabled.attr('disabled', 'disabled');
         });
-        
 });

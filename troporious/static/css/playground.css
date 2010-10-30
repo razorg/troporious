@@ -1,7 +1,4 @@
 .page {
-    /*background-image:-moz-linear-gradient(45deg, green, yellow);
-    background-image:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#8C8C8C), to(#B8B8B8));*/
-    font-family: 'Droid Sans';
     min-width:1024px;
     width:100%;
 }
@@ -18,14 +15,19 @@
     width:50%;
     height:400px;
 }
-.text-inputs > label {
+.text-inputs > label.small {
+    display:inline-block;
     font-size:0.8em;
+    width:180px;
 }
 .text-inputs > textarea {
     height:100px;
     width:350px;
 }
-
+input[type=text]{
+    border:1px solid black;
+    width:175px;
+}
 .centered {
     text-align:center;
 }
