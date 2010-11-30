@@ -16,13 +16,20 @@ from apps.validation.handlers import ValidatorDemoHandler, \
                                       ValidateHandler, \
                                       BackendRecord, \
                                       DLRecording, \
-                                      PlaygroundHandler
+                                      PlaygroundHandler, \
+                                      DownloadFileHandler, \
+                                      PlaygroundLiveHandler \
+
+from apps.proxy.handlers import ProxyHandler
 
 from jinja2 import Environment, FileSystemLoader
 
 rules = [
   ('/',handlers.RootHandler),
+  ('/proxy',ProxyHandler),
+  ('/playground/download_audio', DownloadFileHandler),
   ('/playground', PlaygroundHandler),
+  ('/playground-live', PlaygroundLiveHandler),
   ('/validator/BackendResponse',BackendResponseHandler),
   ('/validator/BackendRecord',BackendRecord),
   ('/validator/dlrecording',DLRecording),

@@ -22,3 +22,6 @@ class DemoClient(db.Model):
 
 class Recording(db.Model):
   file_upload = db.BlobProperty()
+
+class File(db.Model):
+    file = db.BlobProperty()

@@ -49,6 +49,10 @@ h3 {
 input[type=radio] {
     margin:0px 10px 0px 3px;
 }
+
+textarea {
+    display:block;
+}
 div#voice-col {
     margin-left:50%;
     border-right:2px solid black;
@@ -61,3 +65,4 @@ div#text-col {
     border-bottom:2px solid black;
     width:350px;
 }
+

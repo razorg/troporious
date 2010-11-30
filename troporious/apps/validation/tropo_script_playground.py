@@ -1,3 +1,6 @@
+def logger(string):
+  log("LOGGED : "+string)
+
 def onTransferSuccess(event):
     #say(transferrtext, {"voice":voice})
     hangup()
@@ -8,6 +11,8 @@ def onAnswer(event):
         hangup()
     else:
         say(text, {"voice":voice})
+        if audio_url != 'None':
+            say(audio_url)
         if transferr == "yes":
             transfer(transferrnumber, {
                     'callerID':transferrcallerid,
@@ -18,6 +23,7 @@ def onAnswer(event):
         else:
             hangup()
 
+logger(str(currentCall))
 call(number, {
         "onAnswer":onAnswer,
         "callerID":callerid,

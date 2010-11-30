@@ -1,10 +1,30 @@
 from helpers import TemplatedRequest
 from google.appengine.ext import webapp, db, blobstore
 from google.appengine.api import memcache
-from apps.validation.models import ValidationRequest, Recording, ServiceUser, DemoClient
+from apps.validation.models import ValidationRequest, Recording, ServiceUser, DemoClient, File
 from django.utils import simplejson as json
 import re, urllib, os, logging, time, cgi
 import tropo
+
+HOSTNAME = "http://2.latest.smsandvoice.appspot.com/playground/download_audio"
+
+class PlaygroundLiveHandler(webapp.RequestHandler):
+    def get(self):
+        action = self.request.get('action')
+        if action == 'create':
+            context = dict()
+            context['token'] = 'a3758f024583964a99c170fb14e024510e45f7bc73ca47bc91b23db1ab15d477a8d47dde2f5ad61f59372419'
+            response = tropo.tropo_run_script(context)
+            return self.response.out.write(response.content)
+        elif action == 'say':
+            id = self.request.get('id')
+        
+    def post(self):
+        from tropoweb import Tropo, Session
+        s = Session(self.request.body)
+        logging.debug(self.request.body)
+        t = Tropo()
+        return self.redirect('/playground')
 
 class PlaygroundHandler(webapp.RequestHandler, TemplatedRequest):
     SESSION_TOKEN = '32fcb6deac2d2d4abf7d66b893c3f2cbab4c46f134f70de1d8fbece5a4a9b5ddf85aa1e3bc2b2bd7397f1353'
@@ -24,7 +44,11 @@ class PlaygroundHandler(webapp.RequestHandler, TemplatedRequest):
         arg_transfer_number = self.request.get('transfer_number', 'None')
         arg_transfer_text = self.request.get('transfer_text', 'None')
         arg_transfer_callerid = self.request.get('transfer_callerid', 'None')
-    
+        arg_audio_upload = self.request.get('audio_upload')
+        arg_audio_url = self.request.get('audio_url', 'None')
+        if arg_audio_upload != "":
+            file = File(file=db.Blob(arg_audio_upload)).put()
+            arg_audio_url = "%s?id=%s" %(HOSTNAME, file.id())
         context["voice"] = arg_voice
         context["text"] = arg_text
         if arg_conf_number:
@@ -38,11 +62,20 @@ class PlaygroundHandler(webapp.RequestHandler, TemplatedRequest):
         context["conf_id"] = arg_conf_id
         context["token"] = self.SESSION_TOKEN
         context["callerid"] = arg_callerid
+        context["audio_url"] = arg_audio_url
         
         tropo.tropo_run_script(context)
         return self.redirect("/playground")
         
-    
+class DownloadFileHandler(webapp.RequestHandler):
+    def get(self):
+        id = self.request.get('id')
+        file = File.get_by_id(int(id))
+        if file:
+            self.response.headers['Content-Type'] = 'application/octet-stream'
+            return self.response.out.write(file.file)
+        else:
+            self.reponse.out.write("no file with this id in database.")
 
 class ValidatorDemoHandler(webapp.RequestHandler, TemplatedRequest):
   def get(self):

@@ -14,11 +14,12 @@
 <script type="text/javascript" src="/static/js/jquery.js"></script>
 <script type="text/javascript" src="/static/js/jquery-ui.js"></script>
 <script type="text/javascript" src="/static/js/playground.js"></script>
+<script type="text/javascript" src="/static/js/playground-live.js"></script>
 
 <script type="text/javascript">
 	$(function() {
 	        $("#tabs").tabs({ fx: { opacity: 'toggle', height:'toggle' } });
-	        $('input:submit').button();
+	        $('.button').button();
 	});
 </script>
 </head>
@@ -30,9 +31,10 @@
             <ul>
                 <li><a href="#tabs-1">Call & Transfer</a></li>
                 <li><a href="#tabs-2">Conference</a></li>
+                <li><a href="#tabs-3">LIVE!&#0153;</a></li>
             </ul>
             <div id="tabs-1">
-                <form action="/playground" method="post">
+                <form action="{{action_url}}" method="post" enctype="multipart/form-data">
                     <div class="col-left">
                         <div id="voice-col">
                             <h3>Voice Selection</h3>
@@ -59,8 +61,10 @@
                     <div class="col-right">
                         <div id="text-col">
                             <div class="text-inputs">
-                                <label for="text">Text to say or url for audio to play</label><br />
+                                <label for="text">Text to say :</label><br />
                                 <textarea id="text" name="text">Hello! Oups, have to go! Goodbye!</textarea>
+                                <label for="audio_upload">Audio to play after text</label><br />
+                                <input type="file" name="audio_upload" id="audio_upload">
                                 <br />
                                 <label class="small" for="number">phone number to call</label>
                                 <label class="small" for="callerid">with callerID</label><br />
@@ -85,7 +89,7 @@
                         </div>
                     </div>
                     <div class="centered">
-                        <input type="submit" value="Call" style="width:80px;">
+                        <input class="button" type="submit" value="Call" style="width:80px;">
                     </div>
                 </form>
             </div>
@@ -100,6 +104,13 @@
                         <br /><br />
                         <input class="button" type="submit" style="width:80px;" value="Join">
                     </form>
+                </div>
+            </div>
+            <div id="tabs-3">
+                <div class="centered">
+                    <button id="init_live" class="button">Have Fun!</button>
+                    <div class="init_hidden">
+                        <textarea id="live_to_say"></textarea><button id="live_say">Say</button>
                 </div>
             </div>
         </div>
