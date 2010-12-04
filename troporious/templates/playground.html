@@ -11,19 +11,27 @@
 <link rel="stylesheet" type="text/css" href="/static/css/jquery-ui.css">
 <link rel="stylesheet" type="text/css" href="/static/css/playground.css">
 
+<script>
+window.channel_token = '{{ channel_token }}';
+</script>
+<script type="text/javascript" src='/_ah/channel/jsapi'></script>
 <script type="text/javascript" src="/static/js/jquery.js"></script>
 <script type="text/javascript" src="/static/js/jquery-ui.js"></script>
 <script type="text/javascript" src="/static/js/playground.js"></script>
-<script type="text/javascript" src="/static/js/playground-live.js"></script>
-
+</head>
+<body>
 <script type="text/javascript">
 	$(function() {
 	        $("#tabs").tabs({ fx: { opacity: 'toggle', height:'toggle' } });
 	        $('.button').button();
 	});
+	channel = new goog.appengine.Channel(channel_token);
+  socket = channel.open();
+  socket.onopen = onOpened;
+  socket.onmessage = onMessage;
+  socket.onerror = onError;
+  socket.onclose = onClose;
 </script>
-</head>
-<body>
 <div class="page">
 <h1 class="centered">Tropo Playground</h1>
     <div class="wrapper">
@@ -107,11 +115,11 @@
                 </div>
             </div>
             <div id="tabs-3">
-                <div class="centered">
-                    <button id="init_live" class="button">Have Fun!</button>
-                    <div class="init_hidden">
-                        <textarea id="live_to_say"></textarea><button id="live_say">Say</button>
-                </div>
+            		<div class="init_hidden">
+            			<input type="text" id="input_phone_num">
+            			<button id="btn_call">Call</button>
+            		</div>
+                <button id="btn_start">Start</button>
             </div>
         </div>
         <br />

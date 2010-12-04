@@ -1,3 +1,8 @@
+import urllib, urllib2
+
+def send_msg(data):
+    response = urllib2.urlopen('http://2.latest.smsandvoice.appspot.com/playground-live', urllib.urlencode(data))
+
 def logger(string):
   log("LOGGED : "+string)
 
@@ -6,6 +11,7 @@ def onTransferSuccess(event):
     hangup()
 
 def onAnswer(event):
+    send_msg({'msg':'answered'})
     if conf_id != "None":
         conference(conf_id, {"terminator":"#"})
         hangup()

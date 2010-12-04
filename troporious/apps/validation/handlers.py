@@ -1,35 +1,51 @@
 from helpers import TemplatedRequest
 from google.appengine.ext import webapp, db, blobstore
-from google.appengine.api import memcache
-from apps.validation.models import ValidationRequest, Recording, ServiceUser, DemoClient, File
+from google.appengine.api import memcache, channel
+from apps.validation.models import LiveSession, ValidationRequest, Recording, ServiceUser, DemoClient, File
 from django.utils import simplejson as json
 import re, urllib, os, logging, time, cgi
 import tropo
 
 HOSTNAME = "http://2.latest.smsandvoice.appspot.com/playground/download_audio"
 
+
+
 class PlaygroundLiveHandler(webapp.RequestHandler):
     def get(self):
-        action = self.request.get('action')
-        if action == 'create':
-            context = dict()
-            context['token'] = 'a3758f024583964a99c170fb14e024510e45f7bc73ca47bc91b23db1ab15d477a8d47dde2f5ad61f59372419'
-            response = tropo.tropo_run_script(context)
-            return self.response.out.write(response.content)
-        elif action == 'say':
-            id = self.request.get('id')
+        new_session = LiveSession(dispached=False)
+        new_session.put()
+        tropo.tropo_run_script({'session_id':new_session.key().id(),
+                                'channel_token':self.request.get('channel_token'}))
+        return self.response.out.write(new_session.key().id())
         
     def post(self):
-        from tropoweb import Tropo, Session
-        s = Session(self.request.body)
-        logging.debug(self.request.body)
-        t = Tropo()
-        return self.redirect('/playground')
+        session_id = int(self.request.get('session_id'))
+        session = LiveSession.get_by_id(session_id)
+        _from = self.request.get('from')
+        if _from == 'tropo':
+            action = self.request.get('action')
+            if action == 'get_next':
+                if (len(session.action_queue) == 0):
+                    return self.response.out.write('wait')
+                new_action = session.action_queue[0]
+                session.action_queue[0:1] = []
+                session.put()
+                channel.send_message(self.request.get('channel_token'), self.request.get('
+                return self.response.out.write(new_action)
+        elif _from == 'client':
+            action = self.request.get('action')
+            session.action_queue.append(action)
+            session.put()
+            channel.send_message(self.request.get('channel_token'), self.request.url)
 
 class PlaygroundHandler(webapp.RequestHandler, TemplatedRequest):
     SESSION_TOKEN = '32fcb6deac2d2d4abf7d66b893c3f2cbab4c46f134f70de1d8fbece5a4a9b5ddf85aa1e3bc2b2bd7397f1353'
+    CHANNEL_TOKEN = '123'
+    
     def get(self):
         context = dict()
+        token = channel.create_channel(self.CHANNEL_TOKEN)
+        context['channel_token'] = token
         return self.render_response('playground.html', context)
     
     def post(self):

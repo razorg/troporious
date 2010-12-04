@@ -4,7 +4,11 @@ class ServiceUser(db.Model):
   ### KEY IS API_KEY ###
   #api_key = db.StringProperty(required=True)#
   name = db.StringProperty(required=True)
-  
+
+class LiveSession(db.Model):
+  ### ID is session_id ###
+  dispached = db.BooleanProperty(required=True)
+  action_queue = db.ListProperty(str)
 
 class ValidationRequest(db.Model):
   ### KEY IS ACCESS_KEY ###
