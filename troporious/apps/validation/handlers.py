@@ -3,20 +3,24 @@ from google.appengine.ext import webapp, db, blobstore
 from google.appengine.api import memcache, channel
 from apps.validation.models import LiveSession, ValidationRequest, Recording, ServiceUser, DemoClient, File
 from django.utils import simplejson as json
-import re, urllib, os, logging, time, cgi
+import re, urllib, os, logging, time, cgi, random, string
 import tropo
 
 HOSTNAME = "http://2.latest.smsandvoice.appspot.com/playground/download_audio"
-
-
+SECRET_LEN = 10
 
 class PlaygroundLiveHandler(webapp.RequestHandler):
     def get(self):
-        new_session = LiveSession(dispached=False)
+        context = dict()
+        channel_secret = ''.join(random.choice(string.letters) for i in xrange(SECRET_LEN))
+        token = channel.create_channel(channel_secret)
+        context['channel_token'] = token
+        new_session = LiveSession(dispached=False,channel_secret=channel_secret)
         new_session.put()
-        tropo.tropo_run_script({'session_id':new_session.key().id(),
-                                'channel_token':self.request.get('channel_token'}))
-        return self.response.out.write(new_session.key().id())
+        tropo.tropo_run_script({'session_id':new_session.key().id()})
+        
+        response = {'channel_token':token, 'session_id':new_session.key().id()}
+        return self.response.out.write(json.dumps(response))
         
     def post(self):
         session_id = int(self.request.get('session_id'))
@@ -30,22 +34,23 @@ class PlaygroundLiveHandler(webapp.RequestHandler):
                 new_action = session.action_queue[0]
                 session.action_queue[0:1] = []
                 session.put()
-                channel.send_message(self.request.get('channel_token'), self.request.get('
+                channel.send_message(session.channel_secret, 'action dequeued')
                 return self.response.out.write(new_action)
+            elif action == 'end':
+                channel.send_message(session.channel_secret, 'script ended')
+                session.delete()
         elif _from == 'client':
             action = self.request.get('action')
             session.action_queue.append(action)
             session.put()
-            channel.send_message(self.request.get('channel_token'), self.request.url)
+            channel.send_message(session.channel_secret, self.request.url)
 
 class PlaygroundHandler(webapp.RequestHandler, TemplatedRequest):
     SESSION_TOKEN = '32fcb6deac2d2d4abf7d66b893c3f2cbab4c46f134f70de1d8fbece5a4a9b5ddf85aa1e3bc2b2bd7397f1353'
-    CHANNEL_TOKEN = '123'
+    
     
     def get(self):
         context = dict()
-        token = channel.create_channel(self.CHANNEL_TOKEN)
-        context['channel_token'] = token
         return self.render_response('playground.html', context)
     
     def post(self):

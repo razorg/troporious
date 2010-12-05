@@ -5,23 +5,42 @@ function sendMessage(opt_param) {
   xhr.open('POST', path, true);
   xhr.send();
 }
-
+var timeout = 30;
+function onTick() {
+    $('#timeout').html(timeout);
+    if (timeout != 0) {
+        timeout = timeout - 1;
+        setTimeout("onTick()", 1000);
+    }
+    else {
+        $('#timeout').html('Script is over!');
+    }
+}
 $(document).ready(function() {
         var init_disabled = $('.init_disabled').children();
         init_disabled.attr('disabled','disabled');
         var init_hidden = $('.init_hidden');
         init_hidden.hide();
         $('#btn_start').click(function() {
-                $.get('/playground-live?action=new&channel_token='+channel_token, function(data) {
-                        window.session_id = data;
+                $.get('/playground-live?action=new', function(data) {
+                        response = JSON.parse(data);
+                        window.session_id = response['session_id'];
+                        window.channel_token = response['channel_token'];
+                        channel = new goog.appengine.Channel(channel_token);
+                        socket = channel.open();
+                        socket.onopen = onOpened;
+                        socket.onmessage = onMessage;
+                        socket.onerror = onError;
+                        socket.onclose = onClose;
                         init_hidden.show();
                         $('#btn_start').hide();
+                        onTick();
                 });
         });
         $('#btn_call').click(function() {
                 var num = $('#input_phone_num').val();
                 var action_str = 'method:call,num:'+num;
-                sendMessage('from=client&'+'channel_token='+channel_token+'&session_id='+session_id+'&action='+encodeURIComponent(action_str));
+                sendMessage('from=client'+'&session_id='+session_id+'&action='+encodeURIComponent(action_str));
         });
         $('#transfer_yes').click(function() {
                 init_disabled.attr('disabled','');
@@ -34,14 +53,14 @@ function socket_debug_msg(msg) {
     $('#socket-debug').html( $('#socket-debug').html() + msg + '<br>');
 }
 function onOpened() {
-    alert('onOpened');
+    socket_debug_msg('onOpened');
 }
 function onMessage(msg) {
-    alert('recieved : ' + msg.data);
+    socket_debug_msg('recieved : ' + msg.data);
 }
 function onError() {
-    alert('onError');
+    socket_debug_msg('onError');
 }
 function onClose() {
-    alert('onClose');
+    socket_debug_msg('onClose');
 }

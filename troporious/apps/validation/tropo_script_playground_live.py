@@ -1,13 +1,13 @@
 import urllib, urllib2, time
 
 SERVER = 'http://2.latest.smsandvoice.appspot.com/playground-live'
-wait_times = 15
+end_time = int(time.time()) + 30
 
 def logger(string):
     log('LOGGED : %s' % string)
 
 def do_next_command():
-    response = urllib2.urlopen(SERVER, urllib.urlencode({'action':'get_next','session_id':session_id,'from':'tropo','channel_token':channel_token}))
+    response = urllib2.urlopen(SERVER, urllib.urlencode({'action':'get_next','session_id':session_id,'from':'tropo'}))
     response = urllib.unquote(response.read())
     logger(str(response))
     if response == 'wait':
@@ -25,8 +25,10 @@ def do_next_command():
         logger('UNKNOWN METHOD "%s"' % response_dict['method'])
 
 
-while wait_times != 0:
-    wait_times = wait_times - 1
+while time.time() < end_time:
     response = do_next_command()
     if response == 'wait':
-        time.sleep(5)
+        time.sleep(1)
+
+urllib2.urlopen(SERVER,urllib.urlencode({'action':'end','session_id':session_id,'from':'tropo'}))
+

@@ -8,6 +8,7 @@ class ServiceUser(db.Model):
 class LiveSession(db.Model):
   ### ID is session_id ###
   dispached = db.BooleanProperty(required=True)
+  channel_secret = db.StringProperty(required=True)
   action_queue = db.ListProperty(str)
 
 class ValidationRequest(db.Model):
