@@ -4,123 +4,49 @@
 <title>Tropo Playground</title>
 <meta charset="UTF-8">
 <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"> 
-<link rel="icon" href="/static/favicon.ico" type="image/x-icon"> 
+<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
 <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.2.0/build/cssreset/reset-min.css">
-<link href='http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin' rel='stylesheet' type='text/css'>
-<link href='http://fonts.googleapis.com/css?family=Lobster&subset=latin' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" type="text/css" href="/static/css/jquery-ui.css">
+<link rel="stylesheet" href="/static/css/blueprint/screen.css" type="text/css" media="screen, projection">
+<link rel="stylesheet" href="/static/css/blueprint/print.css" type="text/css" media="print">	
+<!--[if lt IE 8]><link rel="stylesheet" href="/static/css/blueprint/ie.css" type="text/css" media="screen, projection"><![endif]-->
 <link rel="stylesheet" type="text/css" href="/static/css/playground.css">
 
 <script type="text/javascript" src='/_ah/channel/jsapi'></script>
 <script type="text/javascript" src="/static/js/jquery.js"></script>
-<script type="text/javascript" src="/static/js/jquery-ui.js"></script>
-<script type="text/javascript" src="/static/js/playground.js"></script>
+<script type="text/javascript" src="/static/js/playground-live.js"></script>
+
+<link href='http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Lobster&subset=latin' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Droid+Serif&subset=latin' rel='stylesheet' type='text/css'>
 
 </head>
 <body>
-<script type="text/javascript">
-	$(function() {
-	        $("#tabs").tabs({ fx: { opacity: 'toggle', height:'toggle' } });
-	        $('.button').button();
-	});
-</script>
-
-<div class="page">
-<h1 class="centered">Tropo Playground</h1>
-    <div class="wrapper">
-        <div id="tabs">
-            <ul>
-                <li><a href="#tabs-1">Call & Transfer</a></li>
-                <li><a href="#tabs-2">Conference</a></li>
-                <li><a href="#tabs-3">LIVE!&#0153;</a></li>
-            </ul>
-            <div id="tabs-1">
-                <form action="{{action_url}}" method="post" enctype="multipart/form-data">
-                    <div class="col-left">
-                        <div id="voice-col">
-                            <h3>Voice Selection</h3>
-                            <label> <input type="radio" name="voice" value="carmen">Castilian Spanish - Female</label><br />
-                            <label> <input type="radio" name="voice" value="jorge">French - Female</label><br />
-                            <label> <input type="radio" name="voice" value="florence">French - Female</label><br />
-                            <label> <input type="radio" name="voice" value="bernard">French - Male</label><br />
-                            <label> <input type="radio" name="voice" value="allison" checked="checked">US English - Female</label><br />
-                            <label> <input type="radio" name="voice" value="dave">US English - Male</label><br />
-                            <label> <input type="radio" name="voice" value="kate">British English - Female</label><br />
-                            <label> <input type="radio" name="voice" value="simon">British English - Male</label><br />
-                            <label> <input type="radio" name="voice" value="katrin">German - Female</label><br />
-                            <label> <input type="radio" name="voice" value="stefan">German - Male</label><br />
-                            <label> <input type="radio" name="voice" value="paola">Italian - Female</label><br />
-                            <label> <input type="radio" name="voice" value="luca">Italian - Male</label><br />
-                            <label> <input type="radio" name="voice" value="saskia">Dutch - Female</label><br />
-                            <label> <input type="radio" name="voice" value="willem">Dutch - Male</label><br />
-                            <label> <input type="radio" name="voice" value="soledad">Mexican Spanish - Female</label><br />
-                            <label> <input type="radio" name="voice" value="carlos">Mexican Spanish - Male</label><br />
-                            <label> <input type="radio" name="voice" value="zosia">Polish - Female</label><br />
-                            <label> <input type="radio" name="voice" value="krzysztof">Polish - Male</label><br />
-                        </div>
-                    </div>
-                    <div class="col-right">
-                        <div id="text-col">
-                            <div class="text-inputs">
-                                <label for="text">Text to say :</label><br />
-                                <textarea id="text" name="text">Hello! Oups, have to go! Goodbye!</textarea>
-                                <label for="audio_upload">Audio to play after text</label><br />
-                                <input type="file" name="audio_upload" id="audio_upload">
-                                <br />
-                                <label class="small" for="number">phone number to call</label>
-                                <label class="small" for="callerid">with callerID</label><br />
-                                <input type="text" id="number" name="number" value="+302810322628">
-                                <input type="text" id="callerid" name="callerid" value="+302810666666">
-                                <br /><br />
-                                Then transfer call<br />
-                                <div class="init_disabled text-inputs">
-                                    <label> <input id="transfer_yes" type="radio" name="transfer" value="yes">Yes</label>
-                                    <label> <input id="transfer_no" type="radio" name="transfer" checked="checked" value="no">No</label>
-                                    <br />
-                                    <label class="small" for="transfer_number">To</label>
-                                    <label class="small" for="transfer_callerid">With callerID</label>
-                                    <br />
-                                    <input type="text" id="transfer_to" name="transfer_number" value="+30">
-                                    <input type="text" id="transfer_callerid" name="transfer_callerid" value="+302810666666">
-                                    <br />
-                                    <!--<label for="transfer_text"> And then say </label><br /><textarea type="text" name="transfer_text" id="transfer_text">It's me! Mario!</textarea>-->
-                                    <br />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="centered">
-                        <input class="button" type="submit" value="Call" style="width:80px;">
-                    </div>
-                </form>
-            </div>
-            <div id="tabs-2">
-                <div class="centered">
-                    <form method="post" action="/playground">
-                        <label style="display:block;" for="conf_id">Conference to join</label>
-                        <input type="text" id="conf_id" name="conf_id">
-                        
-                        <label style="display:block;" for="conf_number">Your phone number</label>
-                        <input type="text" id="conf_number" name="conf_number" value="+30">
-                        <br /><br />
-                        <input class="button" type="submit" style="width:80px;" value="Join">
-                    </form>
-                </div>
-            </div>
-            <div id="tabs-3">
-            	<div id="socket-debug">
-            	</div>
-							<div class="init_hidden">
-								<p id="timeout"></p>
-								<input type="text" id="input_phone_num">
-								<button id="btn_call">Call</button>
-							</div>
-							<button id="btn_start">Start</button>
-            </div>
-        </div>
-        <br />
-        <br />
-    </div>
+<div class="container">
+	<div class="header">
+		<h1 class="span-24 last">Tropo Playground-Live&#153;</h1>
+		<hr />
+		<div class="sub-header">
+			<p>play with tropo as much as you want!</p>
+		</div>
+	</div>
+	<div class="span-24 last playground-live">
+		<input type="checkbox" id="toggle_debug" checked>Show debug information</input>
+		<div class="init_hidden">
+			<textarea class="span-24 last" id="code"></textarea>
+			<button id="exec">Execute</button><br>
+			<input id="say_text">
+			<button id="say">Say</button>
+		</div>
+		<br>
+		<div id="start-form">
+			<input type="text" id="phone_number" value="+302810322628">
+			<button id="btn_start">Call & Start</button>
+		</div>
+		<div class="span-24 last" id="debug-window">
+			<p id="timeout"></p>
+		</div>
+	</div>
 </div>
+
 </body>
 </html>

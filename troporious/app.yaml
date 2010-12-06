@@ -3,6 +3,9 @@ version: 3
 runtime: python
 api_version: 1
 
+inbound_services:
+- warmup
+
 derived_file_type:
 - python_precompiled
 
