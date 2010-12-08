@@ -15,7 +15,12 @@ handlers:
   upload: static/(.*)
   
 - url: /google73a6e106114591c7.html
-  static_dir: static
+  static_files: static/google73a6e106114591c7.html
+  upload: /
+
+- url: /download.wav
+  static_files: static/download.wav
+  upload: /
 
 #- url: /stats.*
 #  script: $PYTHON_LIB/google/appengine/ext/appstats/ui.py

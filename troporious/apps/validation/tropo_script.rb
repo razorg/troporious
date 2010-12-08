@@ -4,16 +4,35 @@ require 'cgi'
 require 'json'
 
 SERVER = 'http://3.latest.smsandvoice.appspot.com/playground-live'
+$threads = []
+$running = true
 
 def logger(string)
     log("LOGGED : #{string}")
 end
 
+def recordWithInterval()
+    while $running
+        startCallRecording(SERVER+'?from=tropo&session_id='+$session_id+'&action=record', {:format => 'audio/mp3'})
+        sleep(2);
+        stopCallRecording()
+    end
+end
+    
+
 def send_message(context)
+    logger(context.to_s)
     context['from'] = 'tropo'
     context['session_id'] = $session_id
-    response = Net::HTTP.post_form(URI.parse(SERVER), context)
+    begin
+        response = Net::HTTP.post_form(URI.parse(SERVER), context)
+    rescue => msg
+        logger('wtf happened here? ' + msg)
+        return 'wait'
+    end
+    
     if response.code == '500' || response.code == '400'
+        logger('WTF SERVER_ERROR')
         raise 'server_error'
     end
     return response
@@ -27,14 +46,15 @@ def do_next_command()
         return response
     end
     response = JSON.parse(response)
-    if response['method'] == 'exec'
-        eval(response)
-    elsif response['method'] == 'say'
+    if response['action'] == 'exec'
+        eval(response['code'])
+    elsif response['action'] == 'say'
         say(response['text'])
     end
 end
  
 def onAnswer(e)
+    recorders = Thread.new { recordWithInterval() }
     say('Hello! I\'m your servant.')
     last_non_wait = Time.now.to_i
     while last_non_wait + 30 > Time.now.to_i
@@ -45,7 +65,13 @@ def onAnswer(e)
             last_non_wait = Time.now.to_i
         end
     end
+    $running = false
+    send_message({'action' => 'end'})
+    recorders.wait
 end
 
-#init_number = CGI.unescape($init_number)
-call('tel:+302810322628', { :onAnswer => method(:onAnswer) })
+def onTimeout(e)
+    send_message({'action' => 'notify', 'what' => 'timeout'})
+end
+
+call('tel:'+$init_number, { :onAnswer => method(:onAnswer), :onTimeout => method(:onTimeout), :timeout => 30 })

@@ -1,12 +1,11 @@
 from helpers import TemplatedRequest
 from google.appengine.ext import webapp, db, blobstore
 from google.appengine.api import memcache, channel
-from apps.validation.models import LiveSession, ValidationRequest, Recording, ServiceUser, DemoClient, File
+from apps.validation.models import LiveSession, Recording
 from django.utils import simplejson as json
 import re, urllib, os, logging, time, cgi, random, string
 import tropo
 
-HOSTNAME = "http://2.latest.smsandvoice.appspot.com/playground/download_audio"
 SECRET_LEN = 10
 
 class PlaygroundLiveHandler(webapp.RequestHandler):
@@ -24,8 +23,12 @@ class PlaygroundLiveHandler(webapp.RequestHandler):
         return self.response.out.write(json.dumps(response))
         
     def post(self):
+        import logging
         session_id = int(self.request.get('session_id'))
         session = LiveSession.get_by_id(session_id)
+        if not session:
+            logging.debug('no session with id %d' % session_id)
+            return self.error(403)
         _from = self.request.get('from')
         if _from == 'tropo':
             action = self.request.get('action')
@@ -35,26 +38,49 @@ class PlaygroundLiveHandler(webapp.RequestHandler):
                 new_action = session.action_queue[0]
                 session.action_queue[0:1] = []
                 session.put()
-                channel.send_message(session.channel_secret, 'action "%s" dequeued' % new_action)
+                client_message = {'type':'msg','msg':'action "%s" dequeued' % new_action}
+                channel.send_message(session.channel_secret, json.dumps(client_message))
                 return self.response.out.write(new_action)
             elif action == 'end':
-                channel.send_message(session.channel_secret, 'script ended')
-                session.delete()
+                client_message = {'type':'msg','msg':'script ended execution normally'}
+                channel.send_message(session.channel_secret, json.dumps(client_message))
+                #session.delete()
+                return
+            elif action == 'record':
+                file = self.request.get('filename')
+                recording = Recording(file=db.Blob(file))
+                recording.put()
+                session.recording_queue.append(recording.key())
+                session.put()
+                client_message = {'type':'recording','file_link':'/?id=%d' % recording.key().id()}
+                #client_message = {'type':'recording', 'file_link':'http://www.a1freesoundeffects.com/popular12008/slap.mp3'}
+                #client_message = {'type':'recording', 'file_link':'/download.wav'}
+                channel.send_message(session.channel_secret, json.dumps(client_message))
+                return
+            elif action == 'notify':
+                what = self.request.get('what')
+                if what == 'timeout':
+                    client_message = {'type':'msg','msg':'answer timeout has occured'}
+                    channel.send_message(session.channel_secret, json.dumps(client_message))
+                    return
+            else:
+                logging.debug('no action "%s" for server' % action)
+                return self.error(402)
         elif _from == 'client':
             action = self.request.get('action')
             if not action:
                 return self.error(400)
-            if action == 'exec':
-                code = self.request.get('code')
-                if not code:
-                    return self.error(400)
-                try:
-                    code = json.loads(code)
-                except ValueError:
-                    return self.error(400)
-                session.action_queue.append(code)
-                session.put()
-            channel.send_message(session.channel_secret, 'aciont "%s" queued' % code)
+            try:
+                action = json.loads(action)
+            except ValueError:
+                return self.error(400)
+            session.action_queue.append(self.request.get('action'))
+            session.put()
+            client_message = {'type':'msg','msg':'answer timeout has occured'}
+            channel.send_message(session.channel_secret, 'action "%s" queued' % self.request.get('action'))        
+            channel.send_message(session.channel_secret, json.dumps(client_message))
+            return self.response.out.write('')
+
 
 class PlaygroundHandler(webapp.RequestHandler, TemplatedRequest):
     SESSION_TOKEN = '32fcb6deac2d2d4abf7d66b893c3f2cbab4c46f134f70de1d8fbece5a4a9b5ddf85aa1e3bc2b2bd7397f1353'

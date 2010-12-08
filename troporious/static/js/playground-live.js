@@ -8,9 +8,9 @@ function sendMessage(opt_param) {
 var timeout = 30;
 function onTick() {
     $('#timeout').html(timeout);
-    if (timeout != 0) {
+    if (timeout !== 0) {
         timeout = timeout - 1;
-        setTimeout("onTick()", 1000);
+        setTimeout(onTick, 1000);
     }
     else {
         $('#timeout').html('Script is over!');
@@ -40,14 +40,23 @@ $(document).ready(function() {
                             debug_msg('channel connection opened');
                         };
                         socket.onmessage = function(data) {
-                            debug_msg('recieved : ' + data.data);
-                        }
+                            alert(data);
+                            response = JSON.parse(data.data);
+                            if (response['type'] == 'msg') {
+                                debug_msg('recieved : ' + response['msg']);
+                            }
+                            else if (response['type'] == 'recording') {
+                                debug_msg('a recording. will try to play it.');
+                                $('embed').remove();
+                                $('body').append('<embed src="'+response['file_link']+'" autostart="true" hidden="true" loop="false">');
+                            }
+                        };
                         socket.onerror = function() {
                             debug_msg('channel error occured');
-                        }
+                        };
                         socket.onclose = function() {
                             debug_msg('channel connection closed');
-                        }
+                        };
                         init_hidden.show();
                         start_form.hide();
                         onTick();
