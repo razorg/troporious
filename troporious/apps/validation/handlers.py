@@ -17,7 +17,7 @@ class PlaygroundLiveHandler(webapp.RequestHandler):
         new_session = LiveSession(dispached=False,channel_secret=channel_secret)
         new_session.put()
         number = self.request.get('number')
-        tropo.tropo_run_script({'session_id':new_session.key().id(),'init_number':number})
+        tropo.tropo_run_script({'session_id':new_session.key().id(),'init_number':number,'live_audio':self.request.get('live_audio','')})
         
         response = {'channel_token':token, 'session_id':new_session.key().id()}
         return self.response.out.write(json.dumps(response))

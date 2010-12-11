@@ -54,7 +54,9 @@ def do_next_command()
 end
  
 def onAnswer(e)
-    recorders = Thread.new { recordWithInterval() }
+    if $live_audio == 'true'
+        recorders = Thread.new { recordWithInterval() }
+    end
     say('Hello! I\'m your servant.')
     last_non_wait = Time.now.to_i
     while last_non_wait + 30 > Time.now.to_i

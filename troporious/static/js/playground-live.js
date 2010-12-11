@@ -30,7 +30,11 @@ $(document).ready(function() {
                 debug_window.toggle();
         });
         $('#btn_start').click(function() {
-                $.get('/playground-live?action=new&number='+encodeURIComponent($('#phone_number').val()), function(data) {
+                url = '/playground-live?action=new&number='+encodeURIComponent($('#phone_number').val());
+                if ($('#live_audio').attr('checked')) {
+                    url += '&live-audio=true';
+                }
+                $.get(url, function(data) {
                         response = JSON.parse(data);
                         window.session_id = response['session_id'];
                         window.channel_token = response['channel_token'];
