@@ -44,7 +44,6 @@ $(document).ready(function() {
                             debug_msg('channel connection opened');
                         };
                         socket.onmessage = function(data) {
-                            alert(data);
                             response = JSON.parse(data.data);
                             if (response['type'] == 'msg') {
                                 debug_msg('recieved : ' + response['msg']);
