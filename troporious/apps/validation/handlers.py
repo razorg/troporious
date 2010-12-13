@@ -57,15 +57,24 @@ class PlaygroundLiveHandler(webapp.RequestHandler):
                 #client_message = {'type':'recording', 'file_link':'/download.wav'}
                 channel.send_message(session.channel_secret, json.dumps(client_message))
                 return
+            elif action == 'transcript':
+                json_resp = urllib.unquote(self.request.body)
+                logging.debug(json_resp)
+                json_resp = json_resp[:json_resp.rindex('}')+1]
+                logging.debug(json_resp)
+                response = json.loads(json_resp)
+                client_message = {'type':'msg', 'msg':'transcript : "%s"' % response['result']['transcription']}
+                channel.send_message(session.channel_secret, json.dumps(client_message))
+                return
             elif action == 'notify':
                 what = self.request.get('what')
                 if what == 'timeout':
-                    client_message = {'type':'msg','msg':'answer timeout has occured'}
+                    client_message = {'type':'msg','msg':what}
                     channel.send_message(session.channel_secret, json.dumps(client_message))
                     return
+                raise('notify : what : "%s" not known' % what) 
             else:
-                logging.debug('no action "%s" for server' % action)
-                return self.error(402)
+                raise('no action "%s" for server' % action)
         elif _from == 'client':
             action = self.request.get('action')
             if not action:
@@ -76,8 +85,7 @@ class PlaygroundLiveHandler(webapp.RequestHandler):
                 return self.error(400)
             session.action_queue.append(self.request.get('action'))
             session.put()
-            client_message = {'type':'msg','msg':'answer timeout has occured'}
-            channel.send_message(session.channel_secret, 'action "%s" queued' % self.request.get('action'))        
+            client_message = {'type':'msg','msg':'action %s queued' % action}
             channel.send_message(session.channel_secret, json.dumps(client_message))
             return self.response.out.write('')
 

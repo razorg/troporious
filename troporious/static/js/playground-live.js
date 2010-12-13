@@ -70,6 +70,10 @@ $(document).ready(function() {
                 var action = { 'action' : 'exec', 'code' : code };
                 sendMessage('action='+JSON.stringify(action));
         });
+        $('#ask').click(function() {
+                var action = {'action' : 'ask'};
+                sendMessage('action='+JSON.stringify(action));
+        });
         $('#say').click(function() {
                 var text = $('#say_text').val();
                 var action = { 'action' : 'say', 'text' : text };

@@ -38,6 +38,11 @@ def send_message(context)
     return response
 end
 
+def onChoice(event)
+    logger("you said " + event.value)
+    say(event.value)
+end
+
 def do_next_command()
     response = send_message({ 'action' => 'get_next' }).body()
     logger(response)
@@ -50,6 +55,15 @@ def do_next_command()
         eval(response['code'])
     elsif response['action'] == 'say'
         say(response['text'])
+    elsif response['action'] == 'ask'
+        record("Spit some crap", {
+                :beep => true,
+                :terminator => "#",
+                :onRecord => lambda { |event|
+                    say('recorded')
+                },
+                :transcriptionOutURI => SERVER+'?from=tropo&session_id='+$session_id+'&action=transcript'
+        })
     end
 end
  

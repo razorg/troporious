@@ -10,3 +10,6 @@ class LiveSession(db.Model):
 class Recording(db.Model):
   file = db.BlobProperty()
 
+class Transcript(db.Model):
+  text = db.TextProperty(required=True)
+
