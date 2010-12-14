@@ -3,7 +3,7 @@ require 'uri'
 require 'cgi'
 require 'json'
 
-SERVER = 'http://3.latest.smsandvoice.appspot.com/playground-live'
+SERVER = 'http://4.smsandvoice.appspot.com/transcript-callback'
 $threads = []
 $running = true
 

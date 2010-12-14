@@ -4,14 +4,7 @@ from google.appengine.api import urlfetch
 
 
 SCRIPT_RUN_URL='http://api.tropo.com/1.0/sessions?'
-SECRET_CHARS = string.digits
-SECRET_LENGTH = 4
-API_KEY_INFINITE = 'ICHEAT'
-TROPO_TOKEN_ONLY_SAY = '69508eb2bd3f2e44a548758c68b48ae03c6d8b3cd0da5524387e9ee871f8dd5b56bf474ef80360fbf47ce1f7'
-DEMO_API_KEY = 'KEYISDEMO'
-
-
-
+TROPO_TOKEN_ONLY_SAY = 'ea7e10c4438c5146ac1fba85fe4c22316a76aa21b03b4839f7a03b690c7d7d83169db5964fa2482aff3a2f6d'
 
 def tropo_run_script(context, async=False, callback=None):
   if 'action' not in context.keys():
@@ -23,10 +16,4 @@ def tropo_run_script(context, async=False, callback=None):
     urlfetch.make_fetch_call(rpc, SCRIPT_RUN_URL+urllib.urlencode(context))
     return rpc
   return urlfetch.fetch(SCRIPT_RUN_URL+urllib.urlencode(context))
-  
-def generate_key():
-  return hmac.new(str(random.random())).hexdigest()
-
-def generate_secret():
-  return "".join(random.choice(SECRET_CHARS) for x in range(SECRET_LENGTH))
 

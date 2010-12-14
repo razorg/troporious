@@ -8,7 +8,7 @@ import tropo
 
 SECRET_LEN = 10
 
-class PlaygroundLiveHandler(webapp.RequestHandler):
+class TranscriptCallbackHandler(webapp.RequestHandler):
     def get(self):
         context = dict()
         channel_secret = ''.join(random.choice(string.letters) for i in xrange(SECRET_LEN))
@@ -83,6 +83,12 @@ class PlaygroundLiveHandler(webapp.RequestHandler):
                 action = json.loads(action)
             except ValueError:
                 return self.error(400)
+            
+            if action['action'] == 'send_message':
+                msg = action['msg']
+                client_message = {'type':'msg','msg':'YOU SAID : '+msg}
+                channel.send_message(session.channel_secret, json.dumps(client_message))
+                return
             session.action_queue.append(self.request.get('action'))
             session.put()
             client_message = {'type':'msg','msg':'action %s queued' % action}
@@ -90,9 +96,8 @@ class PlaygroundLiveHandler(webapp.RequestHandler):
             return self.response.out.write('')
 
 
-class PlaygroundHandler(webapp.RequestHandler, TemplatedRequest):
-    SESSION_TOKEN = '32fcb6deac2d2d4abf7d66b893c3f2cbab4c46f134f70de1d8fbece5a4a9b5ddf85aa1e3bc2b2bd7397f1353'
+class TranscriptHandler(webapp.RequestHandler, TemplatedRequest):
     def get(self):
         context = dict()
-        return self.render_response('playground.html', context)
+        return self.render_response('transcript.html', context)
 

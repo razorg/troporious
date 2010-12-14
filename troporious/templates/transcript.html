@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Transcript</title>
+<meta charset="UTF-8">
+<link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon"> 
+<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.2.0/build/cssreset/reset-min.css">
+<link rel="stylesheet" href="/static/css/blueprint/screen.css" type="text/css" media="screen, projection">
+<link rel="stylesheet" href="/static/css/blueprint/print.css" type="text/css" media="print">	
+<!--[if lt IE 8]><link rel="stylesheet" href="/static/css/blueprint/ie.css" type="text/css" media="screen, projection"><![endif]-->
+<link rel="stylesheet" type="text/css" href="/static/css/transcript.css">
+
+<script type="text/javascript" src='/_ah/channel/jsapi'></script>
+<script type="text/javascript" src="/static/js/jquery.js"></script>
+<script type="text/javascript" src="/static/js/transcript.js"></script>
+
+<link href='http://fonts.googleapis.com/css?family=Droid+Sans&subset=latin' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Lobster&subset=latin' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Droid+Serif&subset=latin' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=PT+Sans+Caption' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Crimson+Text' rel='stylesheet' type='text/css'>
+</head>
+<body>
+<div class="container">
+	<div id="page-phone" class="span-24 last">
+		<div class="prepend-3 span-18 append-3 last descr">
+			<h2>Instructions</h2>
+			This service is intended for people with disabilities.
+			You can now call every person you want, and communicate
+			in a respected way. By combining many technological means,
+			the other end can - like always - listen what you type in this
+			web application by utilizing computer voice. Only thing you
+			have to do after receiving the call, is typing what you want
+			to say. When the called person responds, what he said, will be
+			shown in this page, you can read it and the conversation will go on.
+			Appropriate instructions for the called person will be said on the phone.
+		</div>
+		<div class="prepend-7 span-10 append-7 last">
+			<p>Dear person,</p>
+			Please fill your phone number below.
+			Then press call to initiate the communication.
+		</div>
+		<div class="prepend-7 span-10 append-7 last">
+			<input type="text" class="span-6" name="phone">
+			<button class="span-3" id="call">Call</button>
+		</div>
+	</div>
+	<div class="span-24 last init_hidden" id="page-conv">
+		<div class="prepend-4 span-16 append-4 last">
+			<div class="span-16 last" id="conversation">
+				<div id="left" class="span-12">
+					<div id="text-conv" class="span-12">
+					</div>
+					<div id="text-send" class="span-12">
+						<textarea class="span-10" id="texta-send"></textarea>
+						<button class="span-2 last" id="btn-send">Send</button>
+					</div>
+				</div>
+				<div id="right" class="span-3 last">
+				
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

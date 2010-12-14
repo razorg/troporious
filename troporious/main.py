@@ -9,16 +9,15 @@ if 'lib' not in sys.path:
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 import handlers
-from apps.validation.handlers import PlaygroundHandler, \
-                                     PlaygroundLiveHandler \
+from apps.validation.handlers import TranscriptHandler, \
+                                     TranscriptCallbackHandler \
 
 
 from jinja2 import Environment, FileSystemLoader
 
 rules = [
-  ('/',handlers.RootHandler),
-  ('/playground', PlaygroundHandler),
-  ('/playground-live', PlaygroundLiveHandler),
+  ('/',TranscriptHandler),
+  ('/transcript-callback', TranscriptCallbackHandler),
 ]
 app = webapp.WSGIApplication(rules, debug=True)
 

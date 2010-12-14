@@ -6,7 +6,6 @@ class RootHandler(webapp.RequestHandler, TemplatedRequest):
         recording_id = self.request.get('id')
         if not recording_id:
             sessions = LiveSession.all().fetch(100)
-            self.response.out.write('<html><body><embed src="/static/download.mp3" autostart="true" hidden="true" loop="false"><embed src="/statifc/bugsbunny1.wav" autostart="true" hidden="true" loop="false">')
             for session in sessions:
                 self.response.out.write('session(%d) : ' % session.key().id())
                 recordings = db.get(session.recording_queue)
