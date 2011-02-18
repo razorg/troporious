@@ -13,7 +13,7 @@ $(document).ready(function() {
         init_hidden.hide();
         $('#btn-send').click(function() {
                 $('#texta-send').focus();
-                action = {'action':'send_message','msg':$('#texta-send').val()};
+                action = {'action':'end1_msg','msg':$('#texta-send').val()};
                 sendMessage('action='+JSON.stringify(action));
                 $('#texta-send').val('');
         });
@@ -31,6 +31,9 @@ $(document).ready(function() {
                             response = JSON.parse(data.data);
                             if (response['type'] == 'msg') {
                                 $('#text-conv').html( $('#text-conv').html() + response['msg'] + '<br>');
+                            }
+                            else {
+                                alert(response);
                             }
                         };
                         socket.onerror = function() {

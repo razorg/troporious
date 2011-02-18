@@ -18,7 +18,6 @@ def recordWithInterval()
         stopCallRecording()
     end
 end
-    
 
 def send_message(context)
     logger(context.to_s)
@@ -38,8 +37,40 @@ def send_message(context)
     return response
 end
 
+$will_record = false
+
+def onTranscriptStartChoice(event)
+    logger("onchoice")
+    say("you said " + event.attempt)
+    $will_record = true
+end
+
+def TranscriptThread()
+    while $running
+        ask("press 9 to record", {
+                :choices => "[1 DIGITS]",
+                :mode => "dtmf",
+                :onChoice => method(:onTranscriptStartChoice)
+        })
+        if $will_record
+            $will_record = false
+            record("", {
+                    :beep => true,
+                    :terminator => "#",
+                    :onRecord => lambda { |event|
+                        say('ok')
+                    },
+                    :transcriptionOutURI => SERVER+'?from=tropo&session_id='+$session_id+'&action=transcript'
+            })
+        end
+    end
+end
+        
+    
+
 def onChoice(event)
-    logger("you said " + event.value)
+    logger("you said " + event.value.confidence)
+    
     say(event.value)
 end
 
@@ -47,15 +78,12 @@ def do_next_command()
     response = send_message({ 'action' => 'get_next' }).body()
     logger(response)
     if response == 'wait'
-        logger('WAITING')
         return response
     end
     response = JSON.parse(response)
-    if response['action'] == 'exec'
-        eval(response['code'])
-    elsif response['action'] == 'say'
-        say(response['text'])
-    elsif response['action'] == 'ask'
+    if response['action'] == 'end1_msg'
+        say(response['msg'])
+    elsif response['action'] == ''
         record("Spit some crap", {
                 :beep => true,
                 :terminator => "#",
@@ -66,12 +94,10 @@ def do_next_command()
         })
     end
 end
- 
+
 def onAnswer(e)
-    if $live_audio == 'true'
-        recorders = Thread.new { recordWithInterval() }
-    end
-    say('Hello! I\'m your servant.')
+    say('This text....')
+    recorder = Thread.new { TranscriptThread() }
     last_non_wait = Time.now.to_i
     while last_non_wait + 30 > Time.now.to_i
         response = do_next_command()
@@ -83,7 +109,7 @@ def onAnswer(e)
     end
     $running = false
     send_message({'action' => 'end'})
-    recorders.wait
+    recorder.wait
 end
 
 def onTimeout(e)

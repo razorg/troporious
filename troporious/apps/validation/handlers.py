@@ -78,22 +78,20 @@ class TranscriptCallbackHandler(webapp.RequestHandler):
         elif _from == 'client':
             action = self.request.get('action')
             if not action:
-                return self.error(400)
+                return self.error(404)
             try:
                 action = json.loads(action)
             except ValueError:
-                return self.error(400)
+                return self.error(404)
             
-            if action['action'] == 'send_message':
+            if action['action'] == 'end1_msg':
                 msg = action['msg']
                 client_message = {'type':'msg','msg':'YOU SAID : '+msg}
+                session.action_queue.append(self.request.get('action'))
+                session.put()
                 channel.send_message(session.channel_secret, json.dumps(client_message))
                 return
-            session.action_queue.append(self.request.get('action'))
-            session.put()
-            client_message = {'type':'msg','msg':'action %s queued' % action}
-            channel.send_message(session.channel_secret, json.dumps(client_message))
-            return self.response.out.write('')
+            self.error(404)
 
 
 class TranscriptHandler(webapp.RequestHandler, TemplatedRequest):
