@@ -6,9 +6,7 @@ from google.appengine.api import urlfetch
 SCRIPT_RUN_URL='http://api.tropo.com/1.0/sessions?'
 SECRET_CHARS = string.digits
 SECRET_LENGTH = 4
-API_KEY_INFINITE = 'ICHEAT'
-TROPO_TOKEN_ONLY_SAY = '6651a75d44ece74d87518ce880b9fa550d1a90dcf507f59134cb69f5a5e72fabe52bcb29b32dabf75c900f92'
-DEMO_API_KEY = 'KEYISDEMO'
+TROPO_TOKEN_ONLY_SAY = '79defb2f1373094f9b8ab8e4120df4b3c816f029095abb16affb9f36ab1f3a5983ba77f5c242f31489ae6e87'
 
 
 

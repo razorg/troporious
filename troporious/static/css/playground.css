@@ -1,42 +1,27 @@
-.page {
-    min-width:1024px;
-    width:100%;
-}
-.wrapper {
-    margin:3%;
-}
-.col-right {
-    float:right;
-    width:50%;
-    height:400px;
-}
-.col-left {
-    float:left;
-    width:50%;
-    height:400px;
-}
-.text-inputs > label.small {
-    display:inline-block;
-    font-size:0.8em;
-    width:180px;
+html, body {
+    height: 100%;
+    background: #222 url(http://cdn.humblebundle.com/hib2/bg.jpg);
 }
 .text-inputs > textarea {
     height:100px;
     width:350px;
 }
-input[type=text]{
-    border:1px solid black;
-    width:175px;
+
+#header {
+    margin-bottom:100px;
 }
-.centered {
-    text-align:center;
+
+#content {
+    padding-top:20px;
+    padding-bottom:20px;
+    background-color: white;
 }
 
 h1 {
     font-family:'Lobster';
     font-size:3em;
-    border-bottom:2px solid black;
-    border-bottom-width:15px;
+    border-bottom:15px solid white;
+    color:white;
 }
 h2 {
     font-size:2em;
@@ -53,16 +38,10 @@ input[type=radio] {
 textarea {
     display:block;
 }
-div#voice-col {
-    margin-left:50%;
-    border-right:2px solid black;
-}
-div#text-col {
-    margin-left:59px;
-}
 .border {
-    margin:auto;
-    border-bottom:2px solid black;
-    width:350px;
+    border:1px solid black;
 }
 
+.queue_elem {
+    display:inline;
+}

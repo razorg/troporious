@@ -10,32 +10,17 @@ import config
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 import handlers
-from apps.validation.handlers import ValidatorDemoHandler, \
-                                      BackendResponseHandler, \
-                                      ValidatorHandler, \
-                                      ValidateHandler, \
-                                      BackendRecord, \
-                                      DLRecording, \
-                                      PlaygroundHandler, \
-                                      DownloadFileHandler, \
-                                      PlaygroundLiveHandler \
+from apps.validation.handlers import PlaygroundHandler, \
+                                     PlaygroundLiveHandler
 
 from apps.proxy.handlers import ProxyHandler
 
 from jinja2 import Environment, FileSystemLoader
 
 rules = [
-  ('/',handlers.RootHandler),
-  ('/proxy',ProxyHandler),
-  ('/playground/download_audio', DownloadFileHandler),
-  ('/playground', PlaygroundHandler),
-  ('/playground-live', PlaygroundLiveHandler),
-  ('/validator/BackendResponse',BackendResponseHandler),
-  ('/validator/BackendRecord',BackendRecord),
-  ('/validator/dlrecording',DLRecording),
-  ('/validator',ValidatorHandler),
-  ('/validate',ValidateHandler),
-  ('/validator/demo',ValidatorDemoHandler),
+  ('/',PlaygroundHandler),
+  ('/StartSession', PlaygroundLiveHandler),
+  ('/PlaygroundBackend', PlaygroundLiveHandler)
 ]
 app = webapp.WSGIApplication(rules, debug=True)
 
